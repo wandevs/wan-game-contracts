@@ -1,8 +1,8 @@
 {
-  "name": "FinNexus",
+  "name": "DefiGame",
   "version": "0.0.1",
-  "description": "Token contracts of the FinNexus contribution.",
-  "author": "FinNexus dev",
+  "description": "Wanchain develope",
+  "author": "WanDev",
   "license": "MIT",
   "devDependencies": {
     "assert": "^1.4.1",
@@ -44,7 +44,7 @@
     "truffle": "^4.1.14",
     "truffle-test-utils": "^0.1.0",
     "web3": "^0.20.0",
-    "color":"^3.1.2"
+    "color": "^3.1.2"
   },
   "scripts": {
     "test": "mocha --reporter spec",
