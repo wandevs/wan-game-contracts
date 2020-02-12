@@ -5,6 +5,6 @@ var DefiGame =  artifacts.require("./DefiGame.sol");
 
 module.exports = function(deployer,network, accounts) {
 //    deployer.deploy(Math);
-    deployer.deploy(RandomBeacon);
-    deployer.link(RandomBeacon,DefiGame)
+    //deployer.deploy(RandomBeacon);
+    //deployer.link(RandomBeacon,DefiGame)
 };
