@@ -3,20 +3,8 @@ require('./constant.js')
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-let FinNexusContributionInstance,
-    FinNexusContributionInstanceAddress,
-    CfncTokenInstance,
-    CfncTokenInstanceAddress,
-    UM1SInstance,
-    UM1SInstanceAddress,
-    PHASE1_StartTime,
-    PHASE1_EndTime,
-    PHASE1_ConTokenStartTime,
-    PHASE1_ConTokenEndTime,
-    PHASE2_StartTime,
-    PHASE2_EndTime,
-    PHASE2_ConTokenStartTime,
-    PHASE2_ConTokenEndTime
+let LotteryGameInstance
+
 
 ////////////////////////////////////////////////////////////////////////////////////////
 contract('', async ([owner]) => {
