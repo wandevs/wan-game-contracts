@@ -31,6 +31,23 @@ contract('', async ([owner]) => {
 
 
 
+   // function setUpDownLotteryTime(uint _startTime,uint _updownLtryTimeCycle, uint _stopTimeSpanInAdvance)
+  it('[90000001] Set Sart time', async () => {
+
+      let starTime = Date.now()/1000;
+      let cycleTime = 10*60;
+      let stopTimeInAdvance = 2*60;
+
+      var ret = await DefiGameInstance.setUpDownLotteryTime(starTime,cycleTime,stopTimeInAdvance,{from:owner});
+
+
+      assert.equal(DefiGameInstance.gameStartTime(),starTime);
+      assert.equal(DefiGameInstance.upDownLotteryTimeCycle(),cycleTime);
+      assert.equal(DefiGameInstance.upDownLtrstopTimeSpanInAdvance(),stopTimeInAdvance);
+
+
+    })
+
 
 
 

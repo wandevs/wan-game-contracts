@@ -9,6 +9,8 @@ global.DefiGameABI = artifacts.require('./DefiGame.sol').abi
 global.DefiGame = web3.eth.contract(DefiGameABI)
 
 
+var setTime = new Date("2020-02-17T00:00:00Z");//utc time
+global.GameStartTime = parseInt(setTime/1000);
 
 
 //global.OWNER_ADDRESS = '0xf7a2681f8cf9661b6877de86034166422cd8c308'

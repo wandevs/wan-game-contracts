@@ -269,7 +269,6 @@ contract DefiGame is Owned {
         require (updownLotteryStartRN == 0 );
         updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle);
 
-
         //other can be changed any time
         gameStartTime = _startTime;
         upDownLotteryTimeCycle = _updownLtryTimeCycle;
@@ -294,11 +293,12 @@ contract DefiGame is Owned {
         notHalted
         public
     {
+        require(gameStartTime != 0);
         require(_currentPriceIndex > 0);
         //only can change current round price
         require(_cycleumber == curUpDownRound);
-        uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
 
+        uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
         if (_flag) {
             //openPrice
             require(_cycleumber == calUpDownRound);
@@ -322,6 +322,7 @@ contract DefiGame is Owned {
         notHalted
         public
     {
+        require(gameStartTime > 0 );
         require(_startCycleNumber >= curRandomRound);
         require(_cycleNumber > 0);
         uint i;
@@ -460,5 +461,6 @@ contract DefiGame is Owned {
             mstore(add(freePtr, 4), tmp2)
         }
     }
+
 
 }
