@@ -8,7 +8,7 @@ let DefiGameInstance
 let starTime = 0;
 let calRoundNUmber = 0;
 
-let cycleTime = 60;
+let cycleTime = 240;
 let randomCycleTime = cycleTime*2
 let startUpDownRoundNb;
 
@@ -101,7 +101,7 @@ contract('', async ([owner]) => {
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcOpenPrice,0,true,{from:owner,gas:4710000});
         //console.log(ret)
-        sleep(5);
+        sleep(10);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(calRoundNUmber)
@@ -114,12 +114,10 @@ contract('', async ([owner]) => {
 
     it('[90000005] stakein,expect scucess', async () => {
 
-        sleep(10);
+
         var ret = await DefiGameInstance.stakeIn(true,{from:global.ACCOUNT1,value:stake,gas:4710000});
+        sleep(5);
 
-        let starTime = parseInt(Date.now()/1000);
-
-        let calRoundNUmber = parseInt(starTime/cycleTime) - startUpDownRoundNb;
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
 
         console.log(res)
@@ -129,12 +127,10 @@ contract('', async ([owner]) => {
 
     it('[90000006] stakein,expect scucess', async () => {
 
-        sleep(10);
+
         var ret = await DefiGameInstance.stakeIn(false,{from:global.ACCOUNT2,value:stake,gas:4710000});
+        sleep(5);
 
-        let starTime = parseInt(Date.now()/1000);
-
-        let calRoundNUmber = parseInt(starTime/cycleTime) - startUpDownRoundNb;
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
 
         console.log(res)
@@ -142,29 +138,29 @@ contract('', async ([owner]) => {
     })
 
     it('[90000007]Set close price,expect scucess', async () => {
-        let wanToBtcCLoePrice = 3050;//SATOSHI
+        let wanToBtcCLosePrice = 3050;//SATOSHI
         //for open price,do not need put cycleNumber,just put it as 0
-        var ret = await DefiGameInstance.setPriceIndex(wanToBtcCLoePrice,calRoundNUmber,false,{from:owner,gas:global.GAS*10});
-
+        var ret = await DefiGameInstance.setPriceIndex(wanToBtcCLosePrice,calRoundNUmber,false,{from:owner,gas:global.GAS*10});
+        sleep(5);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(res)
 
 
-        assert.equal(res[1].toNumber(),wanToBtcOpenPrice);
+        assert.equal(res[1].toNumber(),wanToBtcCLosePrice);
 
     })
 
     it('[90000008] updownFanalize,expect scucess', async () => {
 
-        sleep(cycleTime);
+        sleep(cycleTime*2);
 
         let preAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);
         console.log("prebalance=" + preAccountBalance1)
         var ret = await DefiGameInstance.upDownLotteryFanalize({from:owner,gas:4710000});
-        console.log(ret)
+        //console.log(ret)
 
-        sleep(10);
+        sleep(5);
 
         let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);
         console.log("afterbalance=" + afterAccountBalance1)
