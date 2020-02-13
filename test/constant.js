@@ -13,6 +13,9 @@ var setTime = new Date("2020-02-17T00:00:00Z");//utc time
 global.GameStartTime = parseInt(setTime/1000);
 
 
+global.GAS = 200000
+
+global.BTCTOCONG = 100000000
 //global.OWNER_ADDRESS = '0xf7a2681f8cf9661b6877de86034166422cd8c308'
 
 global.OWNER_ADDRESS = '0xbf12c73ccc1f7f670bf80d0bba93fe5765df9fec'

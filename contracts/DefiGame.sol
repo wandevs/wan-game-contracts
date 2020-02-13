@@ -21,6 +21,7 @@ contract DefiGame is Owned {
         uint                    downAmount;
         address[]               upStakers;
         address[]               downStakers;
+        bool                    finished;
         mapping(address=>uint)  stakeOfStaker;
     }
 
@@ -31,6 +32,7 @@ contract DefiGame is Owned {
         uint[]                      stakingTime;
         uint[]                      accStakeRange;
         uint[]                      extraPrize;
+        bool                        finished;
         mapping(uint=>StakerInfo)   stakerInfoMap;
     }
 
@@ -97,6 +99,7 @@ contract DefiGame is Owned {
        require(msg.value >=  1 ether);
        require(upDownLotteryTimeCycle > 0);
        require(randomLotteryTimeCycle > 0);
+       require (winnerNum > 0);
 
        uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
        uint calRandomRound = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
@@ -114,7 +117,7 @@ contract DefiGame is Owned {
             uint[]  memory         stakingTime = new uint[](1);
             uint[]  memory         accStakeRange = new uint[](1);
             uint[]  memory         extraPrize = new uint[](1);
-           randomGameMap[calRandomRound] = RandomGameItem(0,0,0,stakingTime,accStakeRange,extraPrize);
+           randomGameMap[calRandomRound] = RandomGameItem(0,0,0,stakingTime,accStakeRange,extraPrize,false);
        }
 
        if(_up) {
@@ -219,6 +222,7 @@ contract DefiGame is Owned {
        //end time for this round
        uint endTime = gameStartTime.add(randomLotteryTimeCycle.mul(curRandomRound + 1));
        require(now>endTime);
+       require (winnerNum > 0);
 
         uint rb =  getRandomByBlockTime(now);
         uint len =  randomGameMap[curRandomRound].accStakeRange.length;
@@ -296,22 +300,20 @@ contract DefiGame is Owned {
         require(gameStartTime != 0);
         require(_currentPriceIndex > 0);
         //only can change current round price
-        require(_cycleumber == curUpDownRound);
-
         uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
         if (_flag) {
-            //openPrice
-            require(_cycleumber == calUpDownRound);
+            //set current round open price
             if (updownGameMap[calUpDownRound].openPrice == 0) {
                   address[]    memory  upStakers = new address[](1);
                   address[]    memory  downStakers = new address[](1);
-                  updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,upStakers,downStakers);
+                  updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,upStakers,downStakers,false);
             }
             updownGameMap[calUpDownRound].openPrice = _currentPriceIndex;
 
         } else {
             require(_cycleumber <= calUpDownRound);
             require((updownGameMap[_cycleumber].openPrice > 0));
+            require(!updownGameMap[_cycleumber].finished);
             updownGameMap[_cycleumber].closePrice = _currentPriceIndex;
         }
     }
