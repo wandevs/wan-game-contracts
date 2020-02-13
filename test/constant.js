@@ -18,9 +18,11 @@ global.GAS = 200000
 global.BTCTOCONG = 100000000
 //global.OWNER_ADDRESS = '0xf7a2681f8cf9661b6877de86034166422cd8c308'
 
-global.OWNER_ADDRESS = '0xbf12c73ccc1f7f670bf80d0bba93fe5765df9fec'
+global.OWNER_ADDRESS = '0xbf12c73ccc1f7f670bf80d0bba93fe5765df9fec';
 
-
+global.ACCOUNT1 = '0x255422e9e0451b09260bf6e00bc01cc852257504';
+global.ACCOUNT2 = '0xd05d6d8910c8367e3e882fdb3662bb4419f15454';
+global.ACCOUNT3 = '0xb0572b405f5c84a21d49f57ab26989adab1c5273';
 
 global.sleep = function sleep(numberMillis) {
     var now = new Date();

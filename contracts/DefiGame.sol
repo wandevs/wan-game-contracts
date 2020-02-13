@@ -100,6 +100,7 @@ contract DefiGame is Owned {
        require(upDownLotteryTimeCycle > 0);
        require(randomLotteryTimeCycle > 0);
        require (winnerNum > 0);
+       require(feeRatio > 0);
 
        uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
        uint calRandomRound = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
@@ -130,7 +131,6 @@ contract DefiGame is Owned {
 
        updownGameMap[calUpDownRound].stakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].stakeOfStaker[msg.sender].add(msg.value);
 
-
        //record orginal stake info
        randomGameMap[calRandomRound].stakerInfoMap[now] = StakerInfo(msg.sender,msg.value,now);
 
@@ -156,6 +156,7 @@ contract DefiGame is Owned {
     {
         require(updownGameMap[curUpDownRound].openPrice != 0);
         require(updownGameMap[curUpDownRound].closePrice != 0);
+        require(feeRatio > 0);
 
        //end time for this round
        uint endTime = gameStartTime.add(upDownLotteryTimeCycle.mul(curUpDownRound + 1));
@@ -271,6 +272,11 @@ contract DefiGame is Owned {
     {
         //only set one time
         require (updownLotteryStartRN == 0 );
+
+        require(_startTime > 0);
+        require(_updownLtryTimeCycle > 0);
+        require(_stopTimeSpanInAdvance > 0);
+
         updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle);
 
         //other can be changed any time
@@ -286,7 +292,8 @@ contract DefiGame is Owned {
     {
        //only set one time
        require(gameStartTime > 0 );
-       require(_randomLotteryTimeCycle>0);
+       require(_randomLotteryTimeCycle>upDownLotteryTimeCycle);
+       require(_randomLotteryTimeCycle.mod(upDownLotteryTimeCycle) == 0);
 
        randomLotteryStartRN = gameStartTime.div(_randomLotteryTimeCycle);
        randomLotteryTimeCycle = _randomLotteryTimeCycle;
@@ -333,7 +340,7 @@ contract DefiGame is Owned {
         }
     }
 
-    function setRandomWinerNumber(uint _winnerNum)
+    function setRandomWinnerNumber(uint _winnerNum)
         onlyOwner
         notHalted
         public
