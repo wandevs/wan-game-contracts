@@ -111,7 +111,6 @@ contract DefiGame is Owned {
        uint endTime = startTime.add(upDownLotteryTimeCycle).sub(upDownLtrstopTimeSpanInAdvance);
 
        require(now>=startTime && now<endTime);
-
        //need set open price before stake in
        require(updownGameMap[calUpDownRound].openPrice > 0) ;
 
@@ -148,7 +147,6 @@ contract DefiGame is Owned {
         public
     {
         require(!updownGameMap[curUpDownRound].finished);
-
         require(updownGameMap[curUpDownRound].openPrice != 0);
         require(updownGameMap[curUpDownRound].closePrice != 0);
         require(feeRatio > 0);
@@ -371,8 +369,20 @@ contract DefiGame is Owned {
          feeRatio = _feeRatio;
      }
 
+    function setFanalizeRoundNumber(uint _curUpDownRound, uint _curRandomRound)
+        onlyOwner
+        notHalted
+        public
+    {
+        if (_curUpDownRound != 0) {
+           curUpDownRound = _curUpDownRound;
+        }
 
+        if (_curRandomRound != 0) {
+           curRandomRound = _curRandomRound;
+        }
 
+    }
 
     //--------------------------------private method-----------------------------------
     function  randomStakerfind(uint[]accStakeRange ,uint target)
