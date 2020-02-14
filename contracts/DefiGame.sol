@@ -111,6 +111,7 @@ contract DefiGame is Owned {
        uint endTime = startTime.add(upDownLotteryTimeCycle).sub(upDownLtrstopTimeSpanInAdvance);
 
        require(now>=startTime && now<endTime);
+
        //need set open price before stake in
        require(updownGameMap[calUpDownRound].openPrice > 0) ;
 

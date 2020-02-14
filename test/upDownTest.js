@@ -120,6 +120,9 @@ contract('', async ([owner]) => {
 
     it('[90000005] first round stakein one,expect scucess', async () => {
 
+        let startTime = starTime + cycleTime*(calRoundNUmber);
+        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > startTime;});
+
         var ret = await DefiGameInstance.stakeIn(true,{from:global.ACCOUNT1,value:stake,gas:4710000});
         sleep(5);
 
@@ -203,6 +206,9 @@ contract('', async ([owner]) => {
 
 
     it('[90000105] second round stakein one,expect scucess', async () => {
+
+        let startTime = starTime + cycleTime*(calRoundNUmber);
+        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > startTime;});
 
         var ret = await DefiGameInstance.stakeIn(true,{from:global.ACCOUNT1,value:stake,gas:4710000});
         sleep(5);
