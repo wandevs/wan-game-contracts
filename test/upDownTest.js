@@ -8,7 +8,7 @@ let DefiGameInstance
 let starTime = 0;
 let calRoundNUmber = 0;
 
-let cycleTime = 240;
+let cycleTime = 180;
 let randomCycleTime = cycleTime*2
 let startUpDownRoundNb;
 
@@ -153,7 +153,10 @@ contract('', async ([owner]) => {
 
     it('[90000008] updownFanalize,expect scucess', async () => {
 
-        sleep(cycleTime*2);
+        let endTime = starTime + cycleTime*(calRoundNUmber + 1)
+
+        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > endTime;});
+
 
         let preAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);
         console.log("prebalance=" + preAccountBalance1)

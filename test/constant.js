@@ -40,8 +40,8 @@ global. wait = function (conditionFunc) {
     while (!conditionFunc()) {
         sleep(1000);
         loopTimes++;
-        if(loopTimes>=loopLimit){
-            throw Error("wait timeout! conditionFunc:" + conditionFunc)
+        if(loopTimes%loopLimit==0){
+           console.log("loops=" + loopTimes)
         }
     }
 }
