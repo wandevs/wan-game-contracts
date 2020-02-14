@@ -19,9 +19,9 @@ contract DefiGame is Owned {
         uint                    closePrice;
         uint                    upAmount;
         uint                    downAmount;
+        bool                    finished;
         address[]               upStakers;
         address[]               downStakers;
-        bool                    finished;
         mapping(address=>uint)  stakeOfStaker;
     }
 
@@ -29,10 +29,10 @@ contract DefiGame is Owned {
         uint                        curRandomStakeIdx;
         uint                        startUpdownRound;
         uint                        stopUpdownRound;
+        bool                        finished;
         uint[]                      stakingTime;
         uint[]                      accStakeRange;
         uint[]                      extraPrize;
-        bool                        finished;
         mapping(uint=>StakerInfo)   stakerInfoMap;
     }
 
@@ -306,7 +306,7 @@ contract DefiGame is Owned {
             if (updownGameMap[calUpDownRound].openPrice == 0) {
                   address[]    memory  upStakers = new address[](1);
                   address[]    memory  downStakers = new address[](1);
-                  updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,upStakers,downStakers,false);
+                  updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,false,upStakers,downStakers);
             }
            updownGameMap[calUpDownRound].openPrice = _currentPriceIndex;
 
@@ -318,7 +318,7 @@ contract DefiGame is Owned {
                     uint[]  memory         stakingTime = new uint[](1);
                     uint[]  memory         accStakeRange = new uint[](1);
                     uint[]  memory         extraPrize = new uint[](1);
-                    randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,stakingTime,accStakeRange,extraPrize,false);
+                    randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,false,stakingTime,accStakeRange,extraPrize);
 
                    if (calRandomRound > 0 && randomGameMap[calRandomRound.sub(1)].stopUpdownRound == 0) {
                        randomGameMap[calRandomRound .sub(1)].stopUpdownRound = calUpDownRound.sub(1);
