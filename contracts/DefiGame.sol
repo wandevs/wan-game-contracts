@@ -370,6 +370,9 @@ contract DefiGame is Owned {
          feeRatio = _feeRatio;
      }
 
+
+
+
     //--------------------------------private method-----------------------------------
     function  randomStakerfind(uint[]accStakeRange ,uint target)
            private
@@ -379,25 +382,27 @@ contract DefiGame is Owned {
             uint left = 0;
             uint right = accStakeRange.length - 1;
 
+            if (target < accStakeRange[0]) {
+               return 0;
+            }
+
+            //should not happen,just for safe
+            if (target >= accStakeRange[right]) {
+                return right;
+            }
+
             while(left <= right) {
-
-                uint mid = (right + left) / 2;
-
-                if (mid == accStakeRange.length - 1) {
-                    return accStakeRange.length - 1;
-                }
-
-                if(accStakeRange[mid] <= target && accStakeRange[mid + 1] > target ) {
-                    return mid;
+                uint mid = (left + right) / 2;
+                if( target >= accStakeRange[mid] && target<accStakeRange[mid+1]) {
+                    return mid + 1;
                 }  else if (accStakeRange[mid] < target) {
-                    left = mid + 1;
+                    left = mid;
                 } else if (accStakeRange[mid] > target) {
-                    right = mid - 1;
+                    right = mid;
                 }
 
             }
 
-            return 0;
     }
 ////////////////////////////////////////////////random//////////////////////////////////////////////////////////
     bytes32 constant RANDOM_BY_EPID_SELECTOR = 0x7f07b9ab00000000000000000000000000000000000000000000000000000000;
@@ -482,6 +487,41 @@ contract DefiGame is Owned {
             mstore(add(freePtr, 4), tmp2)
         }
     }
+/////////////////////////////////////mock up for test ///////////////////////
+/*
+    function testGetRandomByBlockTime() public view returns(uint256)
+    {
+        return getRandomByBlockTime(now);
+    }
+
+    uint[] testArray = [10,200,3000,4000,10000];
+    function testRandomStakerfind() public view returns(uint)
+    {
+       uint res = randomStakerfind(testArray,5);
+       if (res != 0) {
+           return 1;
+       }
+
+       res = randomStakerfind(testArray,520);
+       if (res != 2) {
+           return 2;
+       }
+
+       res = randomStakerfind(testArray,9999);
+       if (res != 4) {
+           return 3;
+       }
+
+       res = randomStakerfind(testArray,10001);
+       if (res != 4) {
+            return 4;
+       }
+
+       return 999999999;
+
+    }
+*/
+
 
 
 }
