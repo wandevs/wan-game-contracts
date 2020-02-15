@@ -189,20 +189,12 @@ contract DefiGame is Owned {
         notHalted
         public
     {
-
-
-
        require(!updownGameMap[curUpDownRound].finished);
        require(updownGameMap[curUpDownRound].openPrice != 0);
        require(updownGameMap[curUpDownRound].closePrice != 0);
        require(feeRatio > 0);
 
-       //end time for this round
-       uint endTime = gameStartTime.add(upDownLotteryTimeCycle.mul(curUpDownRound + 1));
-       require(now>endTime);
-
        uint prizePercent = DIVISOR.sub(feeRatio);
-
        uint total =  updownGameMap[curUpDownRound].upAmount.add(updownGameMap[curUpDownRound].downAmount);
        uint winnerPrize = total.mul(prizePercent).div(DIVISOR);
         uint i;
@@ -271,9 +263,7 @@ contract DefiGame is Owned {
         public
     {
        require(!randomGameMap[curRandomRound].finished);
-       //end time for this round
-       uint endTime = gameStartTime.add(randomLotteryTimeCycle.mul(curRandomRound + 1));
-       require(now>endTime);
+       require(randomGameMap[curRandomRound].stopUpdownRound != 0);
        require (winnerNum > 0);
 
         uint rb =  getRandomByBlockTime(now);
@@ -320,7 +310,6 @@ contract DefiGame is Owned {
     {
         //only set one time
         require (updownLotteryStartRN == 0 );
-
         require(_startTime > 0);
         require(_updownLtryTimeCycle > 0);
         require(_stopTimeSpanInAdvance > 0);
@@ -372,8 +361,6 @@ contract DefiGame is Owned {
                  randomGameMap[calRandomRound .sub(1)].stopUpdownRound = calUpDownRound.sub(1);
                }
            }
-
-
 
         } else {
             require(_cycleumber <= calUpDownRound);
