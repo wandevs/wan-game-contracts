@@ -43,7 +43,7 @@ contract storageAdressArray{
        }
 
        if (i>=data.length) {
-        i = data.length - 1;
+         i = data.length - 1;
        }
 
        return data[i];
@@ -73,7 +73,7 @@ contract DefiGame is Owned {
     }
 
     struct RandomGameItem{
-        uint                        curRandomStakeIdx;
+        uint                        stakeAmount;
         uint                        startUpdownRound;
         uint                        stopUpdownRound;
         bool                        finished;
@@ -102,6 +102,7 @@ contract DefiGame is Owned {
 
 
     uint public randomLotteryStartRN;
+    uint public calRoundNumber;
 
     //random lottery time cycle
     uint public randomLotteryTimeCycle;
@@ -111,7 +112,7 @@ contract DefiGame is Owned {
 
     mapping(uint=>uint) public extraPrizeMap;//start cycle nuber=>each round prize
 
-    uint public calRoundNumber;
+
 
     /*
      * EVENTS
@@ -142,7 +143,6 @@ contract DefiGame is Owned {
         notHalted
         payable
     {
-
        require(msg.value >=  1 ether);
        require(upDownLotteryTimeCycle > 0);
        require(randomLotteryTimeCycle > 0);
@@ -152,17 +152,14 @@ contract DefiGame is Owned {
        uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
        uint calRandomRound = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
 
-      //each round start time
+       //each round start time
        uint startTime = gameStartTime.add(upDownLotteryTimeCycle.mul(calUpDownRound));
        //each round end time
        uint endTime = startTime.add(upDownLotteryTimeCycle).sub(upDownLtrstopTimeSpanInAdvance);
 
        require(now>=startTime && now<endTime);
-
-
        //need set open price before stake in
        require(updownGameMap[calUpDownRound].openPrice > 0) ;
-
 
         if(_up) {
             updownGameMap[calUpDownRound].upAmount = msg.value.add(updownGameMap[calUpDownRound].upAmount);
@@ -173,15 +170,13 @@ contract DefiGame is Owned {
        }
        updownGameMap[calUpDownRound].stakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].stakeOfStaker[msg.sender].add(msg.value);
 
-      //record orginal stake info
+       //record orginal stake info
        randomGameMap[calRandomRound].stakerInfoMap[now] = StakerInfo(msg.sender,msg.value,now);
-
-       //cal accumulate stake range array
-       uint idx =  randomGameMap[calRandomRound].accStakeRange.length();
-       uint stakeAmount = randomGameMap[calRandomRound].accStakeRange.get(idx).add(msg.value);
+       randomGameMap[calRandomRound].stakeAmount = randomGameMap[calRandomRound].stakeAmount.add(msg.value);
 
        //push the info to accumulate array
-       randomGameMap[calRandomRound].accStakeRange.push(stakeAmount);
+       randomGameMap[calRandomRound].accStakeRange.push(randomGameMap[calRandomRound].stakeAmount);
+
        randomGameMap[calRandomRound].stakingTime.push(now);
 
 
@@ -208,8 +203,6 @@ contract DefiGame is Owned {
 
        uint total =  updownGameMap[curUpDownRound].upAmount.add(updownGameMap[curUpDownRound].downAmount);
        uint winnerPrize = total.mul(prizePercent).div(DIVISOR);
-
-
         uint i;
         address sAddr;
         uint stake;
@@ -283,7 +276,6 @@ contract DefiGame is Owned {
 
         uint rb =  getRandomByBlockTime(now);
         uint len =  randomGameMap[curRandomRound].accStakeRange.length();
-        uint totalRange = randomGameMap[curRandomRound].accStakeRange.get(len-1);
 
         uint i;
         uint expected;
@@ -291,7 +283,7 @@ contract DefiGame is Owned {
         address[] memory winner = new address[](winnerNum);
         //get winners
         for(i==0;i<winnerNum;i++) {
-             expected = rb.mod(totalRange);
+             expected = rb.mod( randomGameMap[curRandomRound].stakeAmount);
              uint idx = randomStakerfind(randomGameMap[curRandomRound].accStakeRange,expected);
              inputTime = randomGameMap[curRandomRound].stakingTime.get(idx);
              winner[i] = randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker;
@@ -362,7 +354,6 @@ contract DefiGame is Owned {
         require(_currentPriceIndex > 0);
         //only can change current round price
         uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
-
         calRoundNumber = calUpDownRound;
 
         if (_flag) {
@@ -377,7 +368,7 @@ contract DefiGame is Owned {
            uint randomEndTime = gameStartTime.add(randomLotteryTimeCycle.mul(calRandomRound + 1));
 
            if (now >= randomStartTime && now < randomEndTime) {
-               if (randomGameMap[calRandomRound].curRandomStakeIdx==0) {
+               if (randomGameMap[calRandomRound].stakeAmount==0) {
                     randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,false,new storageIntArray(),new storageIntArray());
                     if (calRandomRound > 0 && randomGameMap[calRandomRound.sub(1)].stopUpdownRound == 0) {
                        randomGameMap[calRandomRound .sub(1)].stopUpdownRound = calUpDownRound.sub(1);
@@ -387,9 +378,7 @@ contract DefiGame is Owned {
            }
 
         } else {
-
             require(_cycleumber <= calUpDownRound);
-
             require((updownGameMap[_cycleumber].openPrice > 0));
             require(!updownGameMap[_cycleumber].finished);
             updownGameMap[_cycleumber].closePrice = _currentPriceIndex;
