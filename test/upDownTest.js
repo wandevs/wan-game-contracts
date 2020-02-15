@@ -207,7 +207,7 @@ contract('', async ([owner]) => {
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcOpenPrice,0,true,{from:owner,gas:4710000});
         //console.log(ret)
-        sleep(25);
+        sleep(100);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(calRoundNUmber)
@@ -275,7 +275,7 @@ contract('', async ([owner]) => {
 
     it('[90000108] second round updownFanalize,expect scucess', async () => {
 
-        let endTime = starTime + cycleTime*(calRoundNUmber + 1);
+        let endTime = await DefiGameInstance.chainEndTime();
         wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > endTime;});
 
 
@@ -305,7 +305,7 @@ contract('', async ([owner]) => {
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcOpenPrice,0,true,{from:owner,gas:4710000});
         //console.log(ret)
-        sleep(40);
+        sleep(100);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(calRoundNUmber)
@@ -314,6 +314,10 @@ contract('', async ([owner]) => {
 
         let internalRound = await DefiGameInstance.calRoundNumber();
         console.log("inside round number=" + internalRound);
+
+
+        let currentRound = await DefiGameInstance.curUpDownRound();
+        console.log("inside round number=" + currentRound);
 
     })
 
@@ -379,8 +383,8 @@ contract('', async ([owner]) => {
 
     it('[90000208] third round updownFanalize,expect scucess', async () => {
 
-        let endTime = starTime + cycleTime*(calRoundNUmber + 3);
-        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > endTime;});
+        let endTime = await DefiGameInstance.chainEndTime();
+        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > (endTime + 60*1000);});
 
 
         let preAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);
@@ -393,7 +397,7 @@ contract('', async ([owner]) => {
         let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);
         console.log("afterbalance=" +  web3.fromWei(afterAccountBalance1))
 
-        assert.equal(afterAccountBalance1-preAccountBalance1>0,true)
+        assert.equal(preAccountBalance1 - afterAccountBalance1< web3.fromWei(0.5),true)
 
     })
 
