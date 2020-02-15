@@ -8,7 +8,7 @@ let DefiGameInstance
 let starTime = 0;
 let calRoundNUmber = 0;
 
-let cycleTime = 180;
+let cycleTime = 200;
 let randomCycleTime = cycleTime*2
 let startUpDownRoundNb;
 
@@ -226,7 +226,7 @@ contract('', async ([owner]) => {
         wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > startTime;});
 
         var ret = await DefiGameInstance.stakeIn(true,{from:global.ACCOUNT1,value:stake,gas:4710000});
-        sleep(5);
+        sleep(10);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
 
@@ -262,7 +262,7 @@ contract('', async ([owner]) => {
         let wanToBtcCLosePrice = 3000;//SATOSHI
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcCLosePrice,calRoundNUmber,false,{from:owner,gas:global.GAS*10});
-        sleep(5);
+        sleep(10);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(res)
@@ -296,7 +296,7 @@ contract('', async ([owner]) => {
 
     //////////////////////////////second round/////////////////////////////////////////
     it('[90000204] Set third round open price,expect scucess', async () => {
-        console.log("\n\n--------------------------second round-----------------------------------------------------------------------")
+        console.log("\n\n--------------------------third round-----------------------------------------------------------------------")
         calRoundNUmber = 2;
 
         console.log(calRoundNUmber)
@@ -305,7 +305,7 @@ contract('', async ([owner]) => {
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcOpenPrice,0,true,{from:owner,gas:4710000});
         //console.log(ret)
-        sleep(25);
+        sleep(40);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(calRoundNUmber)
@@ -366,7 +366,7 @@ contract('', async ([owner]) => {
         let wanToBtcCLosePrice = 3000;//SATOSHI
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcCLosePrice,calRoundNUmber,false,{from:owner,gas:global.GAS*10});
-        sleep(5);
+        sleep(10);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(res)
@@ -379,7 +379,7 @@ contract('', async ([owner]) => {
 
     it('[90000208] third round updownFanalize,expect scucess', async () => {
 
-        let endTime = starTime + cycleTime*(calRoundNUmber + 1);
+        let endTime = starTime + cycleTime*(calRoundNUmber + 3);
         wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > endTime;});
 
 
