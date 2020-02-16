@@ -300,7 +300,7 @@ contract('', async ([owner]) => {
     //////////////////////////////second round/////////////////////////////////////////
     it('[90000204] Set third round open price,expect scucess', async () => {
         console.log("\n\n--------------------------third round-----------------------------------------------------------------------")
-       // calRoundNUmber = 2;
+        calRoundNUmber = 2;
 
         console.log(calRoundNUmber)
 
