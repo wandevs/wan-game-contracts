@@ -271,23 +271,27 @@ contract DefiGame is Owned {
        require(randomGameMap[curRandomRound].stopUpdownRound != 0);
        require (winnerNum > 0);
 
-        uint rb = getRandomByBlockTime(now);
-        require(rb!=0);
+        uint rb = 0; //getRandomByBlockTime(now);
 
         uint len =  randomGameMap[curRandomRound].accStakeRange.length();
         uint i;
         uint expected;
         uint inputTime;
         address[] memory winner = new address[](winnerNum);
+        winner[0] = msg.sender;
+        winner[0] = msg.sender;
         //get winners
         for(i==0;i<winnerNum;i++) {
-             expected = rb.mod( randomGameMap[curRandomRound].stakeAmount);
+             expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
+
              uint idx = randomStakerfind(randomGameMap[curRandomRound].accStakeRange,expected);
              inputTime = randomGameMap[curRandomRound].stakingTime.get(idx);
              winner[i] = randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker;
+
              //use previous winner select next winner
-             bytes32 hash = keccak256(rb, randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker,inputTime);
-             rb = uint(hash);
+           //  bytes32 hash = keccak256(rb, randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker,inputTime);
+
+           //  rb = uint(hash);
         }
 
         uint totalPrize = 0;
@@ -364,7 +368,8 @@ contract DefiGame is Owned {
            if (randomGameMap[calRandomRound].stakeAmount==0) {
                randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,false,new storageIntArray(),new storageIntArray());
                if (calRandomRound > 0 && randomGameMap[calRandomRound.sub(1)].stopUpdownRound == 0) {
-                 randomGameMap[calRandomRound .sub(1)].stopUpdownRound = calUpDownRound.sub(1);
+                 randomGameMap[calRandomRound.sub(1)].stopUpdownRound = calUpDownRound.sub(1);
+
                }
            }
 
@@ -426,7 +431,7 @@ contract DefiGame is Owned {
     }
 
     function chainEndTime() public view returns(uint) {
-       return gameStartTime.add(upDownLotteryTimeCycle.mul(curUpDownRound + 1));
+       return now;
     }
 
     //--------------------------------private method-----------------------------------
@@ -477,6 +482,7 @@ contract DefiGame is Owned {
                                           );
 
         emit UpDownBingGo(msg.sender,result,success?1:0);
+
         return result;
     }
 
