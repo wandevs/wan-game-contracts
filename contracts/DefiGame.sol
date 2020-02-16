@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "./SafeMath.sol";
 import "./Owned.sol";
 
+
 contract storageIntArray{
     using SafeMath for uint;
     uint[] public data;
@@ -103,6 +104,7 @@ contract DefiGame is Owned {
 
 
     uint public randomLotteryStartRN;
+
     uint public calRoundNumber;
 
     //random lottery time cycle
@@ -112,8 +114,6 @@ contract DefiGame is Owned {
     uint public winnerNum;
 
     mapping(uint=>uint) public extraPrizeMap;//start cycle nuber=>each round prize
-
-
 
     /*
      * EVENTS
@@ -271,9 +271,10 @@ contract DefiGame is Owned {
        require(randomGameMap[curRandomRound].stopUpdownRound != 0);
        require (winnerNum > 0);
 
-        uint rb =  getRandomByBlockTime(now);
-        uint len =  randomGameMap[curRandomRound].accStakeRange.length();
+        uint rb = getRandomByBlockTime(now);
+        require(rb!=0);
 
+        uint len =  randomGameMap[curRandomRound].accStakeRange.length();
         uint i;
         uint expected;
         uint inputTime;
@@ -459,27 +460,15 @@ contract DefiGame is Owned {
             }
 
     }
-////////////////////////////////////////////////random//////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////
     bytes32 constant RANDOM_BY_EPID_SELECTOR = 0x7f07b9ab00000000000000000000000000000000000000000000000000000000;
     bytes32 constant RANDOM_BY_BLKTIME_SELECTOR = 0xdf39683800000000000000000000000000000000000000000000000000000000;
     bytes32 constant GET_EPOCHID_SELECTOR = 0x5303548b00000000000000000000000000000000000000000000000000000000;
     address constant PRECOMPILE_CONTRACT_ADDR = 0x262;
-    function getRandomByEpochId(uint256 epochId) private view returns(uint256) {
 
-        (uint256 result, bool success) = callWith32BytesReturnsUint256(
-                                            PRECOMPILE_CONTRACT_ADDR,
-                                            RANDOM_BY_EPID_SELECTOR,
-                                            bytes32(epochId)
-                                          );
-
-        if (!success) {
-            revert("ASSEMBLY_CALL_GET_BORROW_INTEREST_RATE_FAILED");
-        }
-
-        return result;
-    }
-
-    function getRandomByBlockTime(uint256 blockTime) private view returns(uint256) {
+    function getRandomByBlockTime(uint256 blockTime) public returns(uint256) {
 
         (uint256 result, bool success) = callWith32BytesReturnsUint256(
                                                 PRECOMPILE_CONTRACT_ADDR,
@@ -487,24 +476,7 @@ contract DefiGame is Owned {
                                                 bytes32(blockTime)
                                           );
 
-        if (!success) {
-            revert("ASSEMBLY_CALL_GET_BORROW_INTEREST_RATE_FAILED");
-        }
-
-        return result;
-    }
-
-    function getEpochId(uint256 blockTime) private view returns(uint256) {
-         (uint256 result, bool success) = callWith32BytesReturnsUint256(
-                                                PRECOMPILE_CONTRACT_ADDR,
-                                                GET_EPOCHID_SELECTOR,
-                                                bytes32(blockTime)
-                                            );
-
-        if (!success) {
-            revert("ASSEMBLY_CALL_GET_BORROW_INTEREST_RATE_FAILED");
-        }
-
+        emit UpDownBingGo(msg.sender,result,success?1:0);
         return result;
     }
 
@@ -513,11 +485,12 @@ contract DefiGame is Owned {
         address to,
         bytes32 functionSelector,
         bytes32 param1
-    )
+        )
+
         private
-        view
-        returns (uint256 result, bool success)
-    {
+
+        returns (uint256 result, bool success) {
+
         assembly {
             let freePtr := mload(0x40)
             let tmp1 := mload(freePtr)
@@ -542,32 +515,40 @@ contract DefiGame is Owned {
             mstore(add(freePtr, 4), tmp2)
         }
     }
+
 /////////////////////////////////////mock up for test ///////////////////////
-/*
+
     function testGetRandomByBlockTime() public view returns(uint256)
     {
         return getRandomByBlockTime(now);
     }
 
-    uint[] testArray = [10,200,3000,4000,10000];
+/*
     function testRandomStakerfind() public view returns(uint)
     {
-       uint res = randomStakerfind(testArray,5);
+       storageIntArray ta = new storageIntArray();
+       ta.push(10);
+       ta.push(200);
+       ta.push(3000);
+       ta.push(4000);
+       ta.push(10000);
+
+       uint res = randomStakerfind(ta,5);
        if (res != 0) {
            return 1;
        }
 
-       res = randomStakerfind(testArray,520);
+       res = randomStakerfind(ta,520);
        if (res != 2) {
            return 2;
        }
 
-       res = randomStakerfind(testArray,9999);
+       res = randomStakerfind(ta,9999);
        if (res != 4) {
            return 3;
        }
 
-       res = randomStakerfind(testArray,10001);
+       res = randomStakerfind(ta,10001);
        if (res != 4) {
             return 4;
        }
