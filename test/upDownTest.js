@@ -104,7 +104,7 @@ contract('', async ([owner]) => {
 
     ///////////////////////////////////////first round//////////////////////////////////
 
-/*    it('[90000004] Set first round open price,expect scucess', async () => {
+    it('[90000004] Set first round open price,expect scucess', async () => {
 
        // let nowTime = parseInt(Date.now()/1000);
        /// calRoundNUmber = parseInt(nowTime/cycleTime) - startUpDownRoundNb
@@ -296,7 +296,7 @@ contract('', async ([owner]) => {
 
     })
 
-*/
+
     //////////////////////////////second round/////////////////////////////////////////
     it('[90000204] Set third round open price,expect scucess', async () => {
         console.log("\n\n--------------------------third round-----------------------------------------------------------------------")
