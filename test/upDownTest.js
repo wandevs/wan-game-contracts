@@ -4,6 +4,7 @@ require('./constant.js')
 ////////////////////////////////////////////////////////////////////////////////////
 
 let DefiGameInstance
+let DefiGameInstanceAddress
 
 let starTime = 0;
 let calRoundNUmber = 0;
@@ -101,7 +102,9 @@ contract('', async ([owner]) => {
         assert.equal(gotFeeRatio,feeRatio);
     })
 
-    it('[90000004] Set first round open price,expect scucess', async () => {
+    ///////////////////////////////////////first round//////////////////////////////////
+
+/*    it('[90000004] Set first round open price,expect scucess', async () => {
 
        // let nowTime = parseInt(Date.now()/1000);
        /// calRoundNUmber = parseInt(nowTime/cycleTime) - startUpDownRoundNb
@@ -262,7 +265,7 @@ contract('', async ([owner]) => {
         let wanToBtcCLosePrice = 3000;//SATOSHI
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcCLosePrice,calRoundNUmber,false,{from:owner,gas:global.GAS*10});
-        sleep(10);
+        sleep(100);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(res)
@@ -275,29 +278,29 @@ contract('', async ([owner]) => {
 
     it('[90000108] second round updownFanalize,expect scucess', async () => {
 
-        let endTime = await DefiGameInstance.chainEndTime();
+        let endTime = starTime + cycleTime*(calRoundNUmber + 1);
         wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > endTime;});
 
 
-        let preAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);
+        let preAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT2);
         console.log("prebalance=" + web3.fromWei(preAccountBalance1))
         var ret = await DefiGameInstance.upDownLotteryFanalize({from:owner,gas:4710000});
-        console.log(ret)
+        console.log(ret.logs[0].args)
 
         sleep(10);
 
-        let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);
+        let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT3);
         console.log("afterbalance=" +  web3.fromWei(afterAccountBalance1))
 
         assert.equal(afterAccountBalance1-preAccountBalance1>0,true)
 
     })
 
-
+*/
     //////////////////////////////second round/////////////////////////////////////////
     it('[90000204] Set third round open price,expect scucess', async () => {
         console.log("\n\n--------------------------third round-----------------------------------------------------------------------")
-        calRoundNUmber = 2;
+       // calRoundNUmber = 2;
 
         console.log(calRoundNUmber)
 
@@ -367,10 +370,10 @@ contract('', async ([owner]) => {
 
 
     it('[90000207] third round set close price,expect scucess', async () => {
-        let wanToBtcCLosePrice = 3000;//SATOSHI
+        let wanToBtcCLosePrice = 3026;//SATOSHI
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcCLosePrice,calRoundNUmber,false,{from:owner,gas:global.GAS*10});
-        sleep(10);
+        sleep(100);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
         console.log(res)
@@ -384,14 +387,20 @@ contract('', async ([owner]) => {
     it('[90000208] third round updownFanalize,expect scucess', async () => {
 
         let endTime = await DefiGameInstance.chainEndTime();
-        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > (endTime + 60*1000);});
+        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > endTime;});
 
 
         let preAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);
         console.log("prebalance=" + web3.fromWei(preAccountBalance1))
-        var ret = await DefiGameInstance.upDownLotteryFanalize({from:owner,gas:4710000});
-        console.log(ret)
 
+        let contractBalance1 = await web3.eth.getBalance(DefiGameInstanceAddress);
+        console.log("contract balance=" + contractBalance1);
+
+        var ret = await DefiGameInstance.upDownLotteryFanalize({from:owner,gas:4710000});
+        console.log(ret.logs[0].args)
+        console.log(ret.logs[1].args)
+        console.log(ret.logs[2].args)
+        console.log(ret.logs[3].args)
         sleep(10);
 
         let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT1);

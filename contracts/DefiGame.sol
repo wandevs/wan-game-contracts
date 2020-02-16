@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "./SafeMath.sol";
-import "./Owned.sol";
+import "../SafeMath.sol";
+import "../Owned.sol";
 
 contract storageIntArray{
     using SafeMath for uint;
@@ -69,7 +69,8 @@ contract DefiGame is Owned {
         bool                    finished;
         storageAdressArray      upStakers;
         storageAdressArray      downStakers;
-        mapping(address=>uint)  stakeOfStaker;
+        mapping(address=>uint)  upStakeOfStaker;
+        mapping(address=>uint)  downStakeOfStaker;
     }
 
     struct RandomGameItem{
@@ -164,11 +165,13 @@ contract DefiGame is Owned {
         if(_up) {
             updownGameMap[calUpDownRound].upAmount = msg.value.add(updownGameMap[calUpDownRound].upAmount);
             updownGameMap[calUpDownRound].upStakers.push(msg.sender);
+            updownGameMap[calUpDownRound].upStakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].upStakeOfStaker[msg.sender].add(msg.value);
        } else {
             updownGameMap[calUpDownRound].downAmount = msg.value.add(updownGameMap[calUpDownRound].downAmount);
             updownGameMap[calUpDownRound].downStakers.push(msg.sender);
+            updownGameMap[calUpDownRound].downStakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].downStakeOfStaker[msg.sender].add(msg.value);
        }
-       updownGameMap[calUpDownRound].stakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].stakeOfStaker[msg.sender].add(msg.value);
+
 
        //record orginal stake info
        randomGameMap[calRandomRound].stakerInfoMap[now] = StakerInfo(msg.sender,msg.value,now);
@@ -190,8 +193,10 @@ contract DefiGame is Owned {
         public
     {
        require(!updownGameMap[curUpDownRound].finished);
+
        require(updownGameMap[curUpDownRound].openPrice != 0);
        require(updownGameMap[curUpDownRound].closePrice != 0);
+
        require(feeRatio > 0);
 
        uint prizePercent = DIVISOR.sub(feeRatio);
@@ -200,7 +205,7 @@ contract DefiGame is Owned {
         uint i;
         address sAddr;
         uint stake;
-        uint gotPrize;
+        uint gotPrize = 0;
 
         if (updownGameMap[curUpDownRound].closePrice > updownGameMap[curUpDownRound].openPrice) {
             for (i=0;i<updownGameMap[curUpDownRound].upStakers.length();i++) {
@@ -209,21 +214,21 @@ contract DefiGame is Owned {
                     continue;
                 }
 
-                stake = updownGameMap[curUpDownRound].stakeOfStaker[sAddr];
+                stake = updownGameMap[curUpDownRound].upStakeOfStaker[sAddr];
                 gotPrize = winnerPrize.mul(stake).div(updownGameMap[curUpDownRound].upAmount);
                 sAddr.transfer(gotPrize);
 
                 emit UpDownBingGo(sAddr,gotPrize,curUpDownRound);
             }
 
-        } else if (updownGameMap[curUpDownRound].closePrice > updownGameMap[curUpDownRound].openPrice) {
+        } else if (updownGameMap[curUpDownRound].closePrice < updownGameMap[curUpDownRound].openPrice) {
             for (i=0;i<updownGameMap[curUpDownRound].downStakers.length();i++) {
                 sAddr = updownGameMap[curUpDownRound].downStakers.get(i);
                 if(sAddr==0x0){
                     continue;
                 }
-                stake = updownGameMap[curUpDownRound].stakeOfStaker[sAddr];
-                gotPrize = winnerPrize.mul(stake).div(updownGameMap[curUpDownRound].upAmount);
+                stake = updownGameMap[curUpDownRound].downStakeOfStaker[sAddr];
+                gotPrize = winnerPrize.mul(stake).div(updownGameMap[curUpDownRound].downAmount);
                 sAddr.transfer(gotPrize);
 
                 emit UpDownBingGo(sAddr,gotPrize,curUpDownRound);
@@ -235,9 +240,9 @@ contract DefiGame is Owned {
                 if(sAddr==0x0){
                     continue;
                 }
-                stake = updownGameMap[curUpDownRound].stakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
+                stake = updownGameMap[curUpDownRound].upStakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
                 sAddr.transfer(stake);
-                emit UpDownBingGo(sAddr,gotPrize,curUpDownRound);
+                emit UpDownBingGo(sAddr,stake,curUpDownRound);
             }
 
             for (i=0;i<updownGameMap[curUpDownRound].downStakers.length();i++) {
@@ -245,9 +250,9 @@ contract DefiGame is Owned {
                 if(sAddr==0x0){
                     continue;
                 }
-                stake = updownGameMap[curUpDownRound].stakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
+                stake = updownGameMap[curUpDownRound].downStakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
                 sAddr.transfer(stake);
-                emit UpDownBingGo(sAddr,gotPrize,curUpDownRound);
+                emit UpDownBingGo(sAddr,stake,curUpDownRound);
             }
         }
 
