@@ -288,7 +288,7 @@ contract DefiGame is Owned {
 
         uint totalPrize = 0;
         //accumulate all of updown round
-        for(i= randomGameMap[curRandomRound].startUpdownRound;i<curRandomRound;i++) {
+        for(i= randomGameMap[curRandomRound].startUpdownRound;i<randomGameMap[curRandomRound].stopUpdownRound;i++) {
             totalPrize = totalPrize.add(updownGameMap[i].upAmount.add(updownGameMap[i].downAmount));
         }
 
