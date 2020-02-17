@@ -114,7 +114,8 @@ contract DefiGame is Owned {
     uint public winnerNum;
 
     mapping(uint=>uint) public extraPrizeMap;//start cycle nuber=>each round prize
-
+    mapping(uint=>address) public winnerMap;
+    mapping(uint=>uint) public randomMap;
     /*
      * EVENTS
      */
@@ -150,6 +151,7 @@ contract DefiGame is Owned {
        require (winnerNum > 0);
        require(feeRatio > 0);
 
+
        uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
        uint calRandomRound = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
 
@@ -172,7 +174,6 @@ contract DefiGame is Owned {
             updownGameMap[calUpDownRound].downStakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].downStakeOfStaker[msg.sender].add(msg.value);
        }
 
-
        //record orginal stake info
        randomGameMap[calRandomRound].stakerInfoMap[now] = StakerInfo(msg.sender,msg.value,now);
        randomGameMap[calRandomRound].stakeAmount = randomGameMap[calRandomRound].stakeAmount.add(msg.value);
@@ -180,7 +181,6 @@ contract DefiGame is Owned {
        //push the info to accumulate array
        randomGameMap[calRandomRound].accStakeRange.push(randomGameMap[calRandomRound].stakeAmount);
        randomGameMap[calRandomRound].stakingTime.push(now);
-
 
        emit StakeIn(msg.sender,msg.value,calUpDownRound,calRandomRound);
     }
@@ -260,8 +260,6 @@ contract DefiGame is Owned {
        curUpDownRound = curUpDownRound.add(1);
     }
 
-
-
     function randomLotteryFanalize()
         onlyOwner
         notHalted
@@ -271,31 +269,21 @@ contract DefiGame is Owned {
        require(randomGameMap[curRandomRound].stopUpdownRound != 0);
        require (winnerNum > 0);
 
-        uint rb = 0; //getRandomByBlockTime(now);
-
+        uint rb = randomMap[curRandomRound];
         uint len =  randomGameMap[curRandomRound].accStakeRange.length();
-        uint i;
-        uint expected;
-        uint inputTime;
 
-        address[]  winner;
         //get winners
+        uint i;
         for(i==0;i<winnerNum;i++) {
-            expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
-
+             uint expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
              uint idx = randomStakerfind(randomGameMap[curRandomRound].accStakeRange,expected);
 
-             //emit UpDownBingGo(winner[0],expected,randomGameMap[curRandomRound].accStakeRange.length());
-             inputTime = randomGameMap[curRandomRound].stakingTime.get(idx);
-
-             winner.push(randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker);
+             uint inputTime = randomGameMap[curRandomRound].stakingTime.get(idx);
+             winnerMap[i] = randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker;
 
              //use previous winner select next winner
              uint256 hash = uint256(sha256(rb, 0x04, now, idx));
-
              rb = uint(hash);
-
-             emit UpDownBingGo(winner[i],inputTime,idx);
         }
 
         uint totalPrize = 0;
@@ -303,6 +291,7 @@ contract DefiGame is Owned {
         for(i= randomGameMap[curRandomRound].startUpdownRound;i<curRandomRound;i++) {
             totalPrize = totalPrize.add(updownGameMap[i].upAmount.add(updownGameMap[i].downAmount));
         }
+
         //use fee ratio to get all of prize
         totalPrize = totalPrize.mul(feeRatio).div(DIVISOR);
         //add extra prize
@@ -310,9 +299,10 @@ contract DefiGame is Owned {
 
         uint winnerPrize = totalPrize.div(winnerNum);
         for(i==0;i<winnerNum;i++) {
-            winner[i].transfer(winnerPrize);
-            //emit UpDownBingGo(winner[i],winnerPrize,curRandomRound);
+            winnerMap[i].transfer(winnerPrize);
+            emit UpDownBingGo(winnerMap[i],winnerPrize,curRandomRound);
         }
+
        randomGameMap[curRandomRound].finished = true;
        curRandomRound = curRandomRound.add(1);
     }
@@ -372,8 +362,7 @@ contract DefiGame is Owned {
            if (randomGameMap[calRandomRound].stakeAmount==0) {
                randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,false,new storageIntArray(),new storageIntArray());
                if (calRandomRound > 0 && randomGameMap[calRandomRound.sub(1)].stopUpdownRound == 0) {
-                 randomGameMap[calRandomRound.sub(1)].stopUpdownRound = calUpDownRound.sub(1);
-
+                 randomGameMap[calRandomRound .sub(1)].stopUpdownRound = calUpDownRound.sub(1);
                }
            }
 
@@ -434,6 +423,24 @@ contract DefiGame is Owned {
 
     }
 
+  //because gas problem,so take it as isolate function
+  function genRandom(uint _randomRound) public {
+
+        uint timeNow = now;
+        if (_randomRound > 0) {
+             timeNow = gameStartTime.add(upDownLotteryTimeCycle.mul(_randomRound));
+        }
+
+        (uint256 result, bool success) = callWith32BytesReturnsUint256(
+                                                PRECOMPILE_CONTRACT_ADDR,
+                                                RANDOM_BY_EPID_SELECTOR,
+                                                bytes32(timeNow)
+                                          );
+
+        randomMap[curRandomRound] = uint(result);
+    }
+
+
     function chainEndTime() public view returns(uint) {
        return now;
     }
@@ -477,18 +484,6 @@ contract DefiGame is Owned {
     bytes32 constant GET_EPOCHID_SELECTOR = 0x5303548b00000000000000000000000000000000000000000000000000000000;
     address constant PRECOMPILE_CONTRACT_ADDR = 0x262;
 
-    function getRandomByBlockTime(uint256 blockTime) public returns(uint256) {
-
-        (uint256 result, bool success) = callWith32BytesReturnsUint256(
-                                                PRECOMPILE_CONTRACT_ADDR,
-                                                RANDOM_BY_EPID_SELECTOR,
-                                                bytes32(blockTime)
-                                          );
-
-        emit UpDownBingGo(msg.sender,result,success?1:0);
-
-        return result;
-    }
 
 
    function callWith32BytesReturnsUint256(
@@ -527,11 +522,6 @@ contract DefiGame is Owned {
     }
 
 /////////////////////////////////////mock up for test ///////////////////////
-
-    function testGetRandomByBlockTime() public view returns(uint256)
-    {
-        return getRandomByBlockTime(now);
-    }
 
 /*
     function testRandomStakerfind() public view returns(uint)
