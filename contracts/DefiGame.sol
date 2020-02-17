@@ -277,21 +277,25 @@ contract DefiGame is Owned {
         uint i;
         uint expected;
         uint inputTime;
-        address[] memory winner = new address[](winnerNum);
-        winner[0] = msg.sender;
-        winner[0] = msg.sender;
+
+        address[]  winner;
         //get winners
         for(i==0;i<winnerNum;i++) {
-             expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
+            expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
 
              uint idx = randomStakerfind(randomGameMap[curRandomRound].accStakeRange,expected);
+
+             //emit UpDownBingGo(winner[0],expected,randomGameMap[curRandomRound].accStakeRange.length());
              inputTime = randomGameMap[curRandomRound].stakingTime.get(idx);
-             winner[i] = randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker;
+
+             winner.push(randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker);
 
              //use previous winner select next winner
-           //  bytes32 hash = keccak256(rb, randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker,inputTime);
+             uint256 hash = uint256(sha256(rb, 0x04, now, idx));
 
-           //  rb = uint(hash);
+             rb = uint(hash);
+
+             emit UpDownBingGo(winner[i],inputTime,idx);
         }
 
         uint totalPrize = 0;
@@ -307,7 +311,7 @@ contract DefiGame is Owned {
         uint winnerPrize = totalPrize.div(winnerNum);
         for(i==0;i<winnerNum;i++) {
             winner[i].transfer(winnerPrize);
-            emit UpDownBingGo(winner[i],winnerPrize,curRandomRound);
+            //emit UpDownBingGo(winner[i],winnerPrize,curRandomRound);
         }
        randomGameMap[curRandomRound].finished = true;
        curRandomRound = curRandomRound.add(1);
