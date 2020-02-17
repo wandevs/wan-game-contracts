@@ -298,7 +298,7 @@ contract DefiGame is Owned {
         totalPrize = totalPrize.add(extraPrizeMap[curRandomRound]);
 
         uint winnerPrize = totalPrize.div(winnerNum);
-        for(i==0;i<winnerNum;i++) {
+        for(i=0;i<winnerNum;i++) {
             winnerMap[i].transfer(winnerPrize);
             emit UpDownBingGo(winnerMap[i],winnerPrize,curRandomRound);
         }
@@ -362,7 +362,7 @@ contract DefiGame is Owned {
            if (randomGameMap[calRandomRound].stakeAmount==0) {
                randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,false,new storageIntArray(),new storageIntArray());
                if (calRandomRound > 0 && randomGameMap[calRandomRound.sub(1)].stopUpdownRound == 0) {
-                 randomGameMap[calRandomRound .sub(1)].stopUpdownRound = calUpDownRound.sub(1);
+                 randomGameMap[calRandomRound.sub(1)].stopUpdownRound = calUpDownRound;
                }
            }
 
