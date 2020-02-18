@@ -52,7 +52,7 @@ contract('', async ([owner]) => {
     //
     // res = await DefiGameInstance.testGetRandomByBlockTime();
     // console.log("random numer res=" + res);
-    sleep(10000);
+
 
   })
 
@@ -60,29 +60,18 @@ contract('', async ([owner]) => {
 
   it('[90000001] Set updown game Sart time,expect scucess', async () => {
 
-      var nowTime = parseInt(Date.now()/ 1000)
+
+      nowTime = parseInt(Date.now()/ 1000);
+
 
       console.log("start time=" + nowTime)
 
-      while (true) {
 
-          nowTime = parseInt(Date.now()/ 1000);
-          if (nowTime%cycleTime == 0 ) {
-              console.log("start time=" + nowTime);
-              break;
-          }
-          esle
-          {
-              sleep(1000)
-          }
-      }
-
-      console.log("start time=" + nowTime)
-
-      starTime = nowTime;
       startUpDownRoundNb = parseInt(nowTime/cycleTime);
 
-      calRoundNUmber = parseInt(nowTime/cycleTime) - startUpDownRoundNb
+      starTime = parseInt((startUpDownRoundNb + 1)*cycleTime);
+
+      calRoundNUmber = 0;
 
       var ret = await DefiGameInstance.setUpDownLotteryTime(starTime,cycleTime,stopTimeInAdvance,{from:owner});
 
@@ -96,6 +85,8 @@ contract('', async ([owner]) => {
       assert.equal(gotStarTime,starTime);
       assert.equal(gotCycleTime,cycleTime);
       assert.equal(gotStopSpan,stopTimeInAdvance);
+
+      wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > starTime + 10;});
 
 
     })
@@ -126,20 +117,17 @@ contract('', async ([owner]) => {
 
     it('[90000004] Set first round open price,expect scucess', async () => {
 
-       // let nowTime = parseInt(Date.now()/1000);
-       /// calRoundNUmber = parseInt(nowTime/cycleTime) - startUpDownRoundNb
-        console.log(calRoundNUmber)
 
+        console.log(calRoundNUmber)
         let wanToBtcOpenPrice = 3026;//SATOSHI
         //for open price,do not need put cycleNumber,just put it as 0
         var ret = await DefiGameInstance.setPriceIndex(wanToBtcOpenPrice,0,true,{from:owner,gas:4710000});
-        //console.log(ret)
-        sleep(25);
+        console.log(ret)
+        sleep(100);
 
         let res = await DefiGameInstance.updownGameMap(calRoundNUmber);
-        console.log(calRoundNUmber)
 
-
+        console.log(calRoundNUmber);
         assert.equal(res[0].toNumber(),wanToBtcOpenPrice);
 
     })

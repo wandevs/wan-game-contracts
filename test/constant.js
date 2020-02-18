@@ -35,7 +35,7 @@ global.sleep = function sleep(numberMillis) {
 }
 
 global. wait = function (conditionFunc) {
-    var loopLimit = 100;
+    var loopLimit = 30;
     var loopTimes = 0;
     while (!conditionFunc()) {
         sleep(1000);

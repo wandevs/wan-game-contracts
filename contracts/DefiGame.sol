@@ -123,16 +123,12 @@ contract DefiGame is Owned {
 
         if(_up) {
             updownGameMap[calUpDownRound].upAmount = msg.value.add(updownGameMap[calUpDownRound].upAmount);
-
-            updownGameMap[calUpDownRound].upStakers[updownGameMap[calUpDownRound].upStakersIdx] = msg.sender;
-            updownGameMap[calUpDownRound].upStakersIdx++;
-
+            updownGameMap[calUpDownRound].upStakers[updownGameMap[calUpDownRound].upStakersIdx++] = msg.sender;
             updownGameMap[calUpDownRound].upStakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].upStakeOfStaker[msg.sender].add(msg.value);
        } else {
             updownGameMap[calUpDownRound].downAmount = msg.value.add(updownGameMap[calUpDownRound].downAmount);
 
-            updownGameMap[calUpDownRound].downStakers[updownGameMap[calUpDownRound].downStakersIdx] = (msg.sender);
-            updownGameMap[calUpDownRound].downStakersIdx ++;
+            updownGameMap[calUpDownRound].downStakers[updownGameMap[calUpDownRound].downStakersIdx++] = (msg.sender);
 
             updownGameMap[calUpDownRound].downStakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].downStakeOfStaker[msg.sender].add(msg.value);
        }
@@ -142,11 +138,8 @@ contract DefiGame is Owned {
        randomGameMap[calRandomRound].stakeAmount = randomGameMap[calRandomRound].stakeAmount.add(msg.value);
 
        //push the info to accumulate array
-       randomGameMap[calRandomRound].accStakeRange[randomGameMap[calRandomRound].accStakeRangeIdx] = (randomGameMap[calRandomRound].stakeAmount);
-       randomGameMap[calRandomRound].accStakeRangeIdx++;
-
-       randomGameMap[calRandomRound].stakingTime[randomGameMap[calRandomRound].stakingTimeIdx] = (now);
-       randomGameMap[calRandomRound].stakingTimeIdx++;
+       randomGameMap[calRandomRound].accStakeRange[randomGameMap[calRandomRound].accStakeRangeIdx++] = (randomGameMap[calRandomRound].stakeAmount);
+       randomGameMap[calRandomRound].stakingTime[randomGameMap[calRandomRound].stakingTimeIdx++] = (now);
 
        emit StakeIn(msg.sender,msg.value,calUpDownRound,calRandomRound);
     }
@@ -173,14 +166,15 @@ contract DefiGame is Owned {
        uint stake;
        uint gotPrize = 0;
 
-        if (updownGameMap[curUpDownRound].closePrice > updownGameMap[curUpDownRound].openPrice) {
+       if (updownGameMap[curUpDownRound].closePrice > updownGameMap[curUpDownRound].openPrice
+           && updownGameMap[curUpDownRound].downAmount > 0 //divid down stake if price up
+           ) {
 
             for (i=0;i<updownGameMap[curUpDownRound].upStakersIdx;i++) {
                 sAddr = updownGameMap[curUpDownRound].upStakers[i];
                 if(sAddr==0x0){
                     continue;
                 }
-
                 stake = updownGameMap[curUpDownRound].upStakeOfStaker[sAddr];
                 gotPrize = winnerPrize.mul(stake).div(updownGameMap[curUpDownRound].upAmount);
                 sAddr.transfer(gotPrize);
@@ -188,7 +182,9 @@ contract DefiGame is Owned {
                 emit UpDownBingGo(sAddr,gotPrize,curUpDownRound);
             }
 
-        } else if (updownGameMap[curUpDownRound].closePrice < updownGameMap[curUpDownRound].openPrice) {
+        } else if (updownGameMap[curUpDownRound].closePrice < updownGameMap[curUpDownRound].openPrice
+                && updownGameMap[curUpDownRound].upAmount > 0 //divid up stake if price down
+             ) {
 
             for (i=0;i<updownGameMap[curUpDownRound].downStakersIdx;i++) {
                 sAddr = updownGameMap[curUpDownRound].downStakers[i];
@@ -239,10 +235,10 @@ contract DefiGame is Owned {
        require (winnerNum > 0);
 
 
-        uint rb = randomMap[curRandomRound];
+       uint rb = randomMap[curRandomRound];
 
         //get winners
-        uint i;
+       uint i;
         for(i==0;i<winnerNum;i++) {
              uint expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
              uint idx = randomStakerfind(expected);
@@ -290,7 +286,7 @@ contract DefiGame is Owned {
         if ( _startTime.mod(_updownLtryTimeCycle) == 0 ) {
             updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle);
         } else {
-            updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle) + 1;
+            updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle);
         }
 
         //other can be changed any time
@@ -321,14 +317,17 @@ contract DefiGame is Owned {
     {
         require(gameStartTime != 0);
         require(_currentPriceIndex > 0);
+        require(now > gameStartTime);
+
         //only can change current round price
         uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
-        calRoundNumber = calUpDownRound;
+
+        calRoundNumber = calUpDownRound;//for debug
 
         if (_flag) {
             //set current round open price
             if (updownGameMap[calUpDownRound].openPrice == 0) {
-                  updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,false,0,0);
+               updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,false,0,0);
             }
            updownGameMap[calUpDownRound].openPrice = _currentPriceIndex;
 
@@ -398,7 +397,11 @@ contract DefiGame is Owned {
     }
 
    //because function gas problem,so take it as isolate function
-  function genRandom(uint _randomRound) public {
+  function genRandom(uint _randomRound)
+        onlyOwner
+        notHalted
+        public
+    {
 
         uint timeNow = now;
         if (_randomRound > 0) {
@@ -414,45 +417,43 @@ contract DefiGame is Owned {
         randomMap[curRandomRound] = uint(result);
     }
 
-  /*
+
     function upDownLotteryGiveBack(uint _updownRound)
         onlyOwner
-        notHalted
         public
     {
-       require(!updownGameMap[_updownRound].finished);
+        require(!updownGameMap[_updownRound].finished);
+        address sAddr;
+        uint stake;
+        uint i;
 
-            address sAddr;
-            uint stake;
-            uint i;
-            for (i=0;i<updownGameMap[_updownRound].upStakers.length();i++) {
-                sAddr = updownGameMap[_updownRound].upStakers.get(i);
-                if(sAddr==0x0){
+        for (i=0;i<updownGameMap[_updownRound].upStakersIdx;i++) {
+            sAddr = updownGameMap[_updownRound].upStakers[i];
+            if(sAddr==0x0){
                     continue;
-                }
-                stake = updownGameMap[_updownRound].upStakeOfStaker[sAddr];
-                sAddr.transfer(stake);
-                emit UpDownReturn(sAddr,stake,_updownRound);
             }
+            stake = updownGameMap[_updownRound].upStakeOfStaker[sAddr];
+            sAddr.transfer(stake);
+            emit UpDownReturn(sAddr,stake,_updownRound);
+        }
 
 
-            for (i=0;i<updownGameMap[_updownRound].downStakers.length();i++) {
-                sAddr = updownGameMap[_updownRound].downStakers.get(i);
-                if(sAddr==0x0){
-                    continue;
-                }
-                stake = updownGameMap[_updownRound].downStakeOfStaker[sAddr];
-                sAddr.transfer(stake);
-                emit UpDownReturn(sAddr,stake,_updownRound);
+        for (i=0;i<updownGameMap[_updownRound].downStakersIdx;i++) {
+            sAddr = updownGameMap[_updownRound].downStakers[i];
+            if(sAddr==0x0){
+                continue;
             }
+            stake = updownGameMap[_updownRound].downStakeOfStaker[sAddr];
+            sAddr.transfer(stake);
+             emit UpDownReturn(sAddr,stake,_updownRound);
+        }
 
        updownGameMap[_updownRound].upAmount = 0;
        updownGameMap[_updownRound].downAmount = 0;
-
        updownGameMap[_updownRound].finished = true;
     }
 
-*/
+
 
     function chainEndTime() public view returns(uint) {
        return now;
