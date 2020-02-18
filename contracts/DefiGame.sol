@@ -338,6 +338,7 @@ contract DefiGame is Owned {
 
         upDownLotteryTimeCycle = _updownLtryTimeCycle;
         upDownLtrstopTimeSpanInAdvance = _stopTimeSpanInAdvance;
+
     }
 
     function setRandomLotteryTime(uint _randomLotteryTimeCycle)
@@ -453,7 +454,7 @@ contract DefiGame is Owned {
 
         randomMap[curRandomRound] = uint(result);
     }
-
+/*
     function upDownLotteryGiveBack(uint _updownRound)
         onlyOwner
         notHalted
@@ -491,7 +492,7 @@ contract DefiGame is Owned {
        updownGameMap[_updownRound].finished = true;
     }
 
-
+*/
 
     function chainEndTime() public view returns(uint) {
        return now;

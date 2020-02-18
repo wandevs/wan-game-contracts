@@ -60,10 +60,12 @@ contract('', async ([owner]) => {
 
   it('[90000001] Set updown game Sart time,expect scucess', async () => {
 
-      let nowTime = 0;
+      let nowTime = parseInt(Date.now()/ 1000);
+
       while (true) {
-          nowTime = parseInt(Date.now() / 1000);
-          if (nowTime%cycleTime == 0) {
+
+          nowTime = parseInt(Date.now()/ 1000);
+          if (nowTime%cycleTime == 0 ) {
               console.log("start time=" + nowTime)
               break
           }
@@ -73,6 +75,7 @@ contract('', async ([owner]) => {
           }
       }
 
+      console.log("start time=" + nowTime)
 
       starTime = nowTime;
       startUpDownRoundNb = parseInt(nowTime/cycleTime);
