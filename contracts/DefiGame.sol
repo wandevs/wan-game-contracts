@@ -234,38 +234,42 @@ contract DefiGame is Owned {
        require(randomGameMap[curRandomRound].stopUpdownRound != 0);
        require (winnerNum > 0);
 
+       //if there is no stake,send a event no prize
+       if (randomGameMap[curRandomRound].stakeAmount == 0) {
+           emit RandomBingGo(0x0,0,curRandomRound);
+       } else {
+           uint rb = randomMap[curRandomRound];
+            //get winners
+           uint i;
+           for(i==0;i<winnerNum;i++) {
 
-       uint rb = randomMap[curRandomRound];
+                 uint expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
+                 uint idx = randomStakerfind(expected);
 
-        //get winners
-       uint i;
-        for(i==0;i<winnerNum;i++) {
-             uint expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
-             uint idx = randomStakerfind(expected);
+                 uint inputTime = randomGameMap[curRandomRound].stakingTimeIdx;
+                 winnerMap[i] = randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker;
 
-             uint inputTime = randomGameMap[curRandomRound].stakingTimeIdx;
-             winnerMap[i] = randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker;
+                 //use previous winner select next winner
+                 uint256 hash = uint256(sha256(rb, 0x04, now, idx));
+                 rb = uint(hash);
+            }
 
-             //use previous winner select next winner
-             uint256 hash = uint256(sha256(rb, 0x04, now, idx));
-             rb = uint(hash);
-        }
+            uint totalPrize = 0;
+            //accumulate all of updown round
+            for(i= randomGameMap[curRandomRound].startUpdownRound;i<randomGameMap[curRandomRound].stopUpdownRound;i++) {
+                totalPrize = totalPrize.add(updownGameMap[i].upAmount.add(updownGameMap[i].downAmount));
+            }
+            //use fee ratio to get all of prize
+            totalPrize = totalPrize.mul(feeRatio).div(DIVISOR);
+            //add extra prize
+            totalPrize = totalPrize.add(extraPrizeMap[curRandomRound]);
 
-        uint totalPrize = 0;
-        //accumulate all of updown round
-        for(i= randomGameMap[curRandomRound].startUpdownRound;i<randomGameMap[curRandomRound].stopUpdownRound;i++) {
-            totalPrize = totalPrize.add(updownGameMap[i].upAmount.add(updownGameMap[i].downAmount));
-        }
-        //use fee ratio to get all of prize
-        totalPrize = totalPrize.mul(feeRatio).div(DIVISOR);
-        //add extra prize
-        totalPrize = totalPrize.add(extraPrizeMap[curRandomRound]);
-
-        uint winnerPrize = totalPrize.div(winnerNum);
-        for(i=0;i<winnerNum;i++) {
-            winnerMap[i].transfer(winnerPrize);
-            emit RandomBingGo(winnerMap[i],winnerPrize,curRandomRound);
-        }
+            uint winnerPrize = totalPrize.div(winnerNum);
+            for(i=0;i<winnerNum;i++) {
+                winnerMap[i].transfer(winnerPrize);
+                emit RandomBingGo(winnerMap[i],winnerPrize,curRandomRound);
+            }
+       }
 
        randomGameMap[curRandomRound].finished = true;
        curRandomRound = curRandomRound.add(1);
