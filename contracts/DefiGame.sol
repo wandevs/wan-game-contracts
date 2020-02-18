@@ -264,7 +264,7 @@ contract DefiGame is Owned {
         uint winnerPrize = totalPrize.div(winnerNum);
         for(i=0;i<winnerNum;i++) {
             winnerMap[i].transfer(winnerPrize);
-            emit UpDownBingGo(winnerMap[i],winnerPrize,curRandomRound);
+            emit RandomBingGo(winnerMap[i],winnerPrize,curRandomRound);
         }
 
        randomGameMap[curRandomRound].finished = true;
@@ -286,7 +286,7 @@ contract DefiGame is Owned {
         if ( _startTime.mod(_updownLtryTimeCycle) == 0 ) {
             updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle);
         } else {
-            updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle);
+            updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle).add(1);
         }
 
         //other can be changed any time
@@ -321,13 +321,12 @@ contract DefiGame is Owned {
 
         //only can change current round price
         uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
-
         calRoundNumber = calUpDownRound;//for debug
 
         if (_flag) {
             //set current round open price
             if (updownGameMap[calUpDownRound].openPrice == 0) {
-               updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,false,0,0);
+                  updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,false,0,0);
             }
            updownGameMap[calUpDownRound].openPrice = _currentPriceIndex;
 
