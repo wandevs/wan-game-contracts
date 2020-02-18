@@ -10,7 +10,7 @@ let starTime = 0;
 let calRoundNUmber = 0;
 let calRandomRN = 0;
 
-let cycleTime = 200;
+let cycleTime = 160;
 let randomCycleTime = cycleTime*2
 let startUpDownRoundNb;
 let randomTartRN;
@@ -78,20 +78,18 @@ contract('', async ([owner]) => {
 
   it('[90000001] Set updown game Sart time,expect scucess', async () => {
 
-      let nowTime = parseInt(Date.now()/1000);
 
-      console.log("pc time=" + nowTime);
-
-      let chainTime = await DefiGameInstance.chainEndTime();
-      console.log("chain time=" + chainTime);
+      var nowTime = parseInt(Date.now()/ 1000);
 
 
-      starTime = nowTime;
+      console.log("start time=" + nowTime)
+
+
       startUpDownRoundNb = parseInt(nowTime/cycleTime);
 
-      randomTartRN =   parseInt(nowTime/randomCycleTime);
+      starTime = parseInt((startUpDownRoundNb + 1)*cycleTime);
 
-      calRoundNUmber = parseInt(nowTime/cycleTime) - startUpDownRoundNb
+      calRoundNUmber = 0;
 
       var ret = await DefiGameInstance.setUpDownLotteryTime(starTime,cycleTime,stopTimeInAdvance,{from:owner});
 
@@ -104,6 +102,7 @@ contract('', async ([owner]) => {
       assert.equal(gotCycleTime,cycleTime);
       assert.equal(gotStopSpan,stopTimeInAdvance);
 
+      wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > starTime + 10;});
 
     })
 
@@ -329,16 +328,9 @@ contract('', async ([owner]) => {
     it('[90000204] Set third round open price,expect scucess', async () => {
         console.log("\n\n--------------------------third round-----------------------------------------------------------------------")
 
-        while(true) {
-            let chainTime = await DefiGameInstance.chainEndTime();
-            console.log("chain time=" + chainTime.toNumber());
+       let chainTime = starTime + randomCycleTime*1;
 
-            let n = parseInt(chainTime/randomCycleTime) - randomTartRN;
-
-            if (n > 0) {
-                break;
-            }
-        }
+        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > chainTime + 10;});
 
         calRoundNUmber = 2;
         calRandomRN = 0;
