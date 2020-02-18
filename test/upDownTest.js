@@ -52,7 +52,7 @@ contract('', async ([owner]) => {
     //
     // res = await DefiGameInstance.testGetRandomByBlockTime();
     // console.log("random numer res=" + res);
-
+    sleep(10000);
 
   })
 
@@ -60,14 +60,16 @@ contract('', async ([owner]) => {
 
   it('[90000001] Set updown game Sart time,expect scucess', async () => {
 
-      let nowTime = parseInt(Date.now()/ 1000);
+      var nowTime = parseInt(Date.now()/ 1000)
+
+      console.log("start time=" + nowTime)
 
       while (true) {
 
           nowTime = parseInt(Date.now()/ 1000);
           if (nowTime%cycleTime == 0 ) {
-              console.log("start time=" + nowTime)
-              break
+              console.log("start time=" + nowTime);
+              break;
           }
           esle
           {
@@ -84,6 +86,8 @@ contract('', async ([owner]) => {
 
       var ret = await DefiGameInstance.setUpDownLotteryTime(starTime,cycleTime,stopTimeInAdvance,{from:owner});
 
+      console.log(ret);
+
 
       let gotStarTime = await DefiGameInstance.gameStartTime();
       let gotCycleTime = await DefiGameInstance.upDownLotteryTimeCycle();
@@ -98,8 +102,6 @@ contract('', async ([owner]) => {
 
 
     it('[90000002] Set random game time,expect scucess', async () => {
-
-
 
         var ret = await DefiGameInstance.setRandomLotteryTime(randomCycleTime,{from:owner});
         let gotCycleTime = await DefiGameInstance.randomLotteryTimeCycle();

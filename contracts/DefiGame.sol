@@ -3,53 +3,6 @@ pragma solidity ^0.4.24;
 import "./SafeMath.sol";
 import "./Owned.sol";
 
-contract storageIntArray{
-    using SafeMath for uint;
-    uint[] public data;
-    function push(uint _data) public {
-        data.push(_data);
-    }
-
-    function length() public view returns(uint) {
-       return data.length;
-    }
-
-    function get(uint i) public view returns(uint) {
-       if (data.length == 0) {
-            return 0;
-       }
-
-       if (i>=data.length) {
-          i = data.length - 1;
-       }
-
-       return data[i];
-    }
-}
-
-contract storageAdressArray{
-    address[] public data;
-    function push(address _data) public {
-        data.push(_data);
-    }
-
-    function length() public view returns(uint) {
-       return data.length;
-    }
-
-    function get(uint i) public view returns(address) {
-       if (data.length == 0) {
-            return 0;
-       }
-
-       if (i>=data.length) {
-         i = data.length - 1;
-       }
-
-       return data[i];
-    }
-}
-
 contract DefiGame is Owned {
 
     using SafeMath for uint;
@@ -67,8 +20,10 @@ contract DefiGame is Owned {
         uint                    upAmount;
         uint                    downAmount;
         bool                    finished;
-        storageAdressArray      upStakers;
-        storageAdressArray      downStakers;
+        uint                    upStakersIdx;
+        uint                    downStakersIdx;
+        mapping(uint=>address)  upStakers;
+        mapping(uint=>address)  downStakers;
         mapping(address=>uint)  upStakeOfStaker;
         mapping(address=>uint)  downStakeOfStaker;
     }
@@ -78,8 +33,10 @@ contract DefiGame is Owned {
         uint                        startUpdownRound;
         uint                        stopUpdownRound;
         bool                        finished;
-        storageIntArray             stakingTime;
-        storageIntArray             accStakeRange;
+        uint                        stakingTimeIdx;
+        uint                        accStakeRangeIdx;
+        mapping(uint=>uint)         stakingTime;
+        mapping(uint=>uint)         accStakeRange;
         mapping(uint=>StakerInfo)   stakerInfoMap;
     }
 
@@ -166,11 +123,17 @@ contract DefiGame is Owned {
 
         if(_up) {
             updownGameMap[calUpDownRound].upAmount = msg.value.add(updownGameMap[calUpDownRound].upAmount);
-            updownGameMap[calUpDownRound].upStakers.push(msg.sender);
+
+            updownGameMap[calUpDownRound].upStakers[updownGameMap[calUpDownRound].upStakersIdx] = msg.sender;
+            updownGameMap[calUpDownRound].upStakersIdx++;
+
             updownGameMap[calUpDownRound].upStakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].upStakeOfStaker[msg.sender].add(msg.value);
        } else {
             updownGameMap[calUpDownRound].downAmount = msg.value.add(updownGameMap[calUpDownRound].downAmount);
-            updownGameMap[calUpDownRound].downStakers.push(msg.sender);
+
+            updownGameMap[calUpDownRound].downStakers[updownGameMap[calUpDownRound].downStakersIdx] = (msg.sender);
+            updownGameMap[calUpDownRound].downStakersIdx ++;
+
             updownGameMap[calUpDownRound].downStakeOfStaker[msg.sender] = updownGameMap[calUpDownRound].downStakeOfStaker[msg.sender].add(msg.value);
        }
 
@@ -179,8 +142,11 @@ contract DefiGame is Owned {
        randomGameMap[calRandomRound].stakeAmount = randomGameMap[calRandomRound].stakeAmount.add(msg.value);
 
        //push the info to accumulate array
-       randomGameMap[calRandomRound].accStakeRange.push(randomGameMap[calRandomRound].stakeAmount);
-       randomGameMap[calRandomRound].stakingTime.push(now);
+       randomGameMap[calRandomRound].accStakeRange[randomGameMap[calRandomRound].accStakeRangeIdx] = (randomGameMap[calRandomRound].stakeAmount);
+       randomGameMap[calRandomRound].accStakeRangeIdx++;
+
+       randomGameMap[calRandomRound].stakingTime[randomGameMap[calRandomRound].stakingTimeIdx] = (now);
+       randomGameMap[calRandomRound].stakingTimeIdx++;
 
        emit StakeIn(msg.sender,msg.value,calUpDownRound,calRandomRound);
     }
@@ -208,11 +174,9 @@ contract DefiGame is Owned {
        uint gotPrize = 0;
 
         if (updownGameMap[curUpDownRound].closePrice > updownGameMap[curUpDownRound].openPrice) {
-            //prevent divide error
-            require(updownGameMap[curUpDownRound].upAmount > 0);
 
-            for (i=0;i<updownGameMap[curUpDownRound].upStakers.length();i++) {
-                sAddr = updownGameMap[curUpDownRound].upStakers.get(i);
+            for (i=0;i<updownGameMap[curUpDownRound].upStakersIdx;i++) {
+                sAddr = updownGameMap[curUpDownRound].upStakers[i];
                 if(sAddr==0x0){
                     continue;
                 }
@@ -226,11 +190,8 @@ contract DefiGame is Owned {
 
         } else if (updownGameMap[curUpDownRound].closePrice < updownGameMap[curUpDownRound].openPrice) {
 
-            //prevent divide error
-            require(updownGameMap[curUpDownRound].downAmount > 0);
-
-            for (i=0;i<updownGameMap[curUpDownRound].downStakers.length();i++) {
-                sAddr = updownGameMap[curUpDownRound].downStakers.get(i);
+            for (i=0;i<updownGameMap[curUpDownRound].downStakersIdx;i++) {
+                sAddr = updownGameMap[curUpDownRound].downStakers[i];
                 if(sAddr==0x0){
                     continue;
                 }
@@ -243,8 +204,8 @@ contract DefiGame is Owned {
 
         } else {
             //return back stake after cut fee
-            for (i=0;i<updownGameMap[curUpDownRound].upStakers.length();i++) {
-                sAddr = updownGameMap[curUpDownRound].upStakers.get(i);
+            for (i=0;i<updownGameMap[curUpDownRound].upStakersIdx;i++) {
+                sAddr = updownGameMap[curUpDownRound].upStakers[i];
                 if(sAddr==0x0){
                     continue;
                 }
@@ -253,8 +214,8 @@ contract DefiGame is Owned {
                 emit UpDownBingGo(sAddr,stake,curUpDownRound);
             }
 
-            for (i=0;i<updownGameMap[curUpDownRound].downStakers.length();i++) {
-                sAddr = updownGameMap[curUpDownRound].downStakers.get(i);
+            for (i=0;i<updownGameMap[curUpDownRound].downStakersIdx;i++) {
+                sAddr = updownGameMap[curUpDownRound].downStakers[i];
                 if(sAddr==0x0){
                     continue;
                 }
@@ -279,15 +240,14 @@ contract DefiGame is Owned {
 
 
         uint rb = randomMap[curRandomRound];
-        uint len =  randomGameMap[curRandomRound].accStakeRange.length();
 
         //get winners
         uint i;
         for(i==0;i<winnerNum;i++) {
              uint expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
-             uint idx = randomStakerfind(randomGameMap[curRandomRound].accStakeRange,expected);
+             uint idx = randomStakerfind(expected);
 
-             uint inputTime = randomGameMap[curRandomRound].stakingTime.get(idx);
+             uint inputTime = randomGameMap[curRandomRound].stakingTimeIdx;
              winnerMap[i] = randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker;
 
              //use previous winner select next winner
@@ -338,7 +298,6 @@ contract DefiGame is Owned {
 
         upDownLotteryTimeCycle = _updownLtryTimeCycle;
         upDownLtrstopTimeSpanInAdvance = _stopTimeSpanInAdvance;
-
     }
 
     function setRandomLotteryTime(uint _randomLotteryTimeCycle)
@@ -369,13 +328,13 @@ contract DefiGame is Owned {
         if (_flag) {
             //set current round open price
             if (updownGameMap[calUpDownRound].openPrice == 0) {
-                  updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,false,new storageAdressArray(),new storageAdressArray());
+                  updownGameMap[calUpDownRound] = UpDownGameItem(0,0,0,0,false,0,0);
             }
            updownGameMap[calUpDownRound].openPrice = _currentPriceIndex;
 
            uint calRandomRound = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
            if (randomGameMap[calRandomRound].stakeAmount==0) {
-               randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,false,new storageIntArray(),new storageIntArray());
+               randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,false,0,0);
                if (calRandomRound > 0 && randomGameMap[calRandomRound.sub(1)].stopUpdownRound == 0) {
                  randomGameMap[calRandomRound.sub(1)].stopUpdownRound = calUpDownRound;
                }
@@ -438,7 +397,7 @@ contract DefiGame is Owned {
 
     }
 
-   //because gas problem,so take it as isolate function
+   //because function gas problem,so take it as isolate function
   function genRandom(uint _randomRound) public {
 
         uint timeNow = now;
@@ -454,7 +413,8 @@ contract DefiGame is Owned {
 
         randomMap[curRandomRound] = uint(result);
     }
-/*
+
+  /*
     function upDownLotteryGiveBack(uint _updownRound)
         onlyOwner
         notHalted
@@ -499,30 +459,31 @@ contract DefiGame is Owned {
     }
 
     //--------------------------------private method-----------------------------------
-    function  randomStakerfind(storageIntArray accStakeRange ,uint target)
+    function  randomStakerfind(uint target)
            private
            view
            returns (uint)
     {
-            uint left = 0;
-            uint right = accStakeRange.length() - 1;
 
-            if (target < accStakeRange.get(0)) {
+            uint left = 0;
+            uint right = randomGameMap[curRandomRound].accStakeRangeIdx - 1;
+
+            if (target < randomGameMap[curRandomRound].accStakeRange[0]) {
                return 0;
             }
 
             //should not happen,just for safe
-            if (target >= accStakeRange.get(right)) {
+            if (target >= randomGameMap[curRandomRound].accStakeRange[right]) {
                 return right;
             }
 
             while(left <= right) {
                 uint mid = (left + right) / 2;
-                if( target >= accStakeRange.get(mid) && target<accStakeRange.get(mid+1)) {
+                if( target >= randomGameMap[curRandomRound].accStakeRange[mid] && target<randomGameMap[curRandomRound].accStakeRange[mid+1]) {
                     return mid + 1;
-                }  else if (accStakeRange.get(mid) < target) {
+                }  else if (randomGameMap[curRandomRound].accStakeRange[mid] < target) {
                     left = mid;
-                } else if (accStakeRange.get(mid) > target) {
+                } else if (randomGameMap[curRandomRound].accStakeRange[mid] > target) {
                     right = mid;
                 }
 
