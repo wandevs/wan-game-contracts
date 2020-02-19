@@ -255,13 +255,8 @@ contract DefiGame is Owned {
                  rb = uint(hash);
             }
 
-            uint totalPrize = 0;
-            //accumulate all of updown round
-            for(i= randomGameMap[curRandomRound].startUpdownRound;i<randomGameMap[curRandomRound].stopUpdownRound;i++) {
-                totalPrize = totalPrize.add(updownGameMap[i].upAmount.add(updownGameMap[i].downAmount));
-            }
             //use fee ratio to get all of prize
-            totalPrize = totalPrize.mul(feeRatio).div(DIVISOR);
+            uint totalPrize = randomGameMap[curRandomRound].stakeAmount.mul(feeRatio).div(DIVISOR);
             //add extra prize
             totalPrize = totalPrize.add(extraPrizeMap[curRandomRound]);
 
