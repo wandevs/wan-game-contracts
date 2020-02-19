@@ -247,7 +247,7 @@ contract DefiGame is Owned {
                  uint expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
                  uint idx = randomStakerfind(expected);
 
-                 uint inputTime = randomGameMap[curRandomRound].stakingTimeIdx;
+                 uint inputTime = randomGameMap[curRandomRound].stakingTime[idx];
                  winnerMap[i] = randomGameMap[curRandomRound].stakerInfoMap[inputTime].staker;
 
                  //use previous winner select next winner
