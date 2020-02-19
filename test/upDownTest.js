@@ -113,6 +113,19 @@ contract('', async ([owner]) => {
         assert.equal(gotFeeRatio,feeRatio);
     })
 
+
+    it('[90000003] Set Extra Prize from random round 0 - 3,expect scucess', async () => {
+
+        var ret = await DefiGameInstance.inputExtraPrize(0,3,{from:owner,value:web3.toWei(9),gas:4710000});
+
+        let round1Prize = await DefiGameInstance.extraPrizeMap(0);
+        assert.equal(gotWinnerNUmber,winnerNUmber);
+
+        var ret = await DefiGameInstance.setFeeRatio(feeRatio,{from:owner});
+
+        let gotFeeRatio = await DefiGameInstance.feeRatio();
+        assert.equal(gotFeeRatio,feeRatio);
+    })
     ///////////////////////////////////////first round//////////////////////////////////
 
     it('[90000004] Set first round open price,expect scucess', async () => {
