@@ -242,7 +242,7 @@ contract DefiGame is Owned {
            uint rb = randomMap[curRandomRound];
             //get winners
            uint i;
-           for(i==0;i<winnerNum;i++) {
+           for(i=0;i<winnerNum;i++) {
 
                  uint expected = rb.mod(randomGameMap[curRandomRound].stakeAmount);
                  uint idx = randomStakerfind(expected);
@@ -346,7 +346,7 @@ contract DefiGame is Owned {
         }
     }
 
-    function inputUpdownExtraPrize(uint _startCycleNumber, uint _cycleNumber)
+    function inputExtraPrize(uint _startCycleNumber, uint _cycleNumber)
         payable
         onlyOwner
         notHalted
