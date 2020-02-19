@@ -58,9 +58,9 @@ contract DefiGame is Owned {
     //updown game stop time span in advance
     uint public upDownLtrstopTimeSpanInAdvance;
 
-
     uint public randomLotteryStartRN;
 
+    //for debug
     uint public calRoundNumber;
 
     //random lottery time cycle
@@ -265,13 +265,14 @@ contract DefiGame is Owned {
                 winnerMap[i].transfer(winnerPrize);
                 emit RandomBingGo(winnerMap[i],winnerPrize,curRandomRound);
             }
+
        }
 
        curRandomRound++;
 
     }
 
-    function setUpDownLotteryTime(uint _startTime,uint _updownLtryTimeCycle, uint _stopTimeSpanInAdvance)
+    function setLotteryTime(uint _startTime,uint _updownLtryTimeCycle, uint _stopTimeSpanInAdvance,uint _randomLotteryTimeCycle)
         onlyOwner
         notHalted
         public
@@ -281,34 +282,25 @@ contract DefiGame is Owned {
         require(_startTime > 0);
         require(_updownLtryTimeCycle > 0);
         require(_stopTimeSpanInAdvance > 0);
+        require(_randomLotteryTimeCycle>_updownLtryTimeCycle);
+        require(_randomLotteryTimeCycle.mod(_updownLtryTimeCycle) == 0);
 
-        updownLotteryStartRN ;
-        if ( _startTime.mod(_updownLtryTimeCycle) == 0 ) {
-            updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle);
+        if ( _startTime.mod(_randomLotteryTimeCycle) == 0 ) {
+           randomLotteryStartRN = gameStartTime.div(_randomLotteryTimeCycle);
         } else {
-            updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle).add(1);
+           randomLotteryStartRN = _startTime.div(_randomLotteryTimeCycle).add(1);
         }
 
         //other can be changed any time
-        gameStartTime = _updownLtryTimeCycle*updownLotteryStartRN;
+        randomLotteryTimeCycle = _randomLotteryTimeCycle;
+        gameStartTime = randomLotteryTimeCycle.mul(randomLotteryStartRN);
 
+
+        updownLotteryStartRN = _startTime.div(_updownLtryTimeCycle);
         upDownLotteryTimeCycle = _updownLtryTimeCycle;
         upDownLtrstopTimeSpanInAdvance = _stopTimeSpanInAdvance;
     }
 
-    function setRandomLotteryTime(uint _randomLotteryTimeCycle)
-        onlyOwner
-        notHalted
-        public
-    {
-       //only set one time
-       require(gameStartTime > 0 );
-       require(_randomLotteryTimeCycle>upDownLotteryTimeCycle);
-       require(_randomLotteryTimeCycle.mod(upDownLotteryTimeCycle) == 0);
-
-       randomLotteryStartRN = gameStartTime.div(_randomLotteryTimeCycle);
-       randomLotteryTimeCycle = _randomLotteryTimeCycle;
-    }
 
     function setPriceIndex(uint _currentPriceIndex, uint _cycleumber,bool _flag)
         onlyOwner
