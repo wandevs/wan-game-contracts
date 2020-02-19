@@ -356,7 +356,7 @@ contract DefiGame is Owned {
         require(_startCycleNumber >= curRandomRound);
         require(_cycleNumber > 0);
         uint i;
-        for(i=_startCycleNumber;i<_cycleNumber;i++) {
+        for(i=_startCycleNumber;i<_startCycleNumber + _cycleNumber;i++) {
             extraPrizeMap[i] = msg.value.div(_cycleNumber);
         }
     }
