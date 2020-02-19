@@ -107,7 +107,7 @@ contract('', async ([owner]) => {
 
 
 
-/*
+
 
     it('[90000003] Set winner number,expect scucess', async () => {
 
@@ -447,7 +447,7 @@ contract('', async ([owner]) => {
 
     })
 
-*/
+
 
 
 })
