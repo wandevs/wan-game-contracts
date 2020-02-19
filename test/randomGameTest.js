@@ -13,6 +13,7 @@ let calRandomRN = 0;
 let cycleTime = 160;
 let randomCycleTime = cycleTime*2
 let startUpDownRoundNb;
+let startRandomRoundNb;
 let randomTartRN;
 
 let stake = web3.toWei(1);
@@ -27,7 +28,7 @@ let feeRatio = 100;//already mul 1000,10%
 ////////////////////////////////////////////////////////////////////////////////////////
 contract('', async ([owner]) => {
 
-
+  this.timeout(1000*60*60);
   it('[90000000] Deploy contracts', async () => {
 
     owner = global.OWNER_ADDRESS;
@@ -82,35 +83,46 @@ contract('', async ([owner]) => {
         nowTime = parseInt(Date.now()/ 1000);
 
 
-        console.log("start time=" + nowTime)
 
 
-        startUpDownRoundNb = parseInt(nowTime/cycleTime);
 
-        starTime = parseInt((startUpDownRoundNb + 1)*cycleTime);
+        startRandomRoundNb = parseInt(nowTime/randomCycleTime);
+
+        starTime = parseInt((startRandomRoundNb + 1)*randomCycleTime);
+
+        startUpDownRoundNb = parseInt(starTime/cycleTime);
 
         calRoundNUmber = 0;
 
         var ret = await DefiGameInstance.setLotteryTime(starTime,cycleTime,stopTimeInAdvance,randomCycleTime,{from:owner});
 
-        console.log(ret);
-
+        //console.log(ret);
+        sleep(100);
 
         let gotStarTime = await DefiGameInstance.gameStartTime();
-        let gotCycleTime = await DefiGameInstance.upDownLotteryTimeCycle();
-        let gotStopSpan = await DefiGameInstance.upDownLtrstopTimeSpanInAdvance();
+        console.log("got start time=" + gotStarTime)
 
-        assert.equal(gotStarTime,starTime);
-        assert.equal(gotCycleTime,cycleTime);
-        assert.equal(gotStopSpan,stopTimeInAdvance);
+        let gotCycleTime = await DefiGameInstance.upDownLotteryTimeCycle();
+        console.log("gotCycleTime=" + gotCycleTime)
+
+        let gotStopSpan = await DefiGameInstance.upDownLtrstopTimeSpanInAdvance();
+        console.log("gotStopSpan=" + gotStopSpan)
+
+        console.log("start time=" + nowTime)
+
+
+        assert.equal(gotStarTime.toNumber(),starTime);
+        assert.equal(gotCycleTime.toNumber(),cycleTime);
+        assert.equal(gotStopSpan.toNumber(),stopTimeInAdvance);
 
         let gotRandomCycleTime = await DefiGameInstance.randomLotteryTimeCycle();
-        assert.equal(gotRandomCycleTime,randomCycleTime);
+        assert.equal(gotRandomCycleTime.toNumber(),randomCycleTime);
 
         wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > starTime + 10;});
 
 
     })
+
 
     it('[90000003] Set winner number,expect scucess', async () => {
 
