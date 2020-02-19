@@ -61,7 +61,8 @@ contract DefiGame is Owned {
     uint public randomLotteryStartRN;
 
     //for debug
-    uint public calRoundNumber;
+    uint public calUpDonwRoundNumber;
+    uint public calRandomRoundNumber;
 
     //random lottery time cycle
     uint public randomLotteryTimeCycle;
@@ -273,6 +274,8 @@ contract DefiGame is Owned {
     }
 
    //need _randomLotteryTimeCycle mod _updownLtryTimeCycle to be 0
+   //startTime would be multiple of _randomLotteryTimeCycle
+   //if not, the game start time will be the (N+1)*_randomLotteryTimeCycle
     function setLotteryTime(uint _startTime,uint _updownLottryTimeCycle, uint _stopTimeSpanInAdvance,uint _randomLotteryTimeCycle)
         onlyOwner
         notHalted
@@ -293,7 +296,7 @@ contract DefiGame is Owned {
            gameStartTime =  _startTime;
         } else {
            randomLotteryStartRN = _startTime.div(_randomLotteryTimeCycle).add(1);
-           gameStartTime = randomLotteryTimeCycle.mul(randomLotteryStartRN);
+           gameStartTime = _randomLotteryTimeCycle.mul(randomLotteryStartRN);
         }
 
         randomLotteryTimeCycle = _randomLotteryTimeCycle;
@@ -313,10 +316,11 @@ contract DefiGame is Owned {
         require(_currentPriceIndex > 0);
         require(now > gameStartTime);
 
+        calUpDonwRoundNumber = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
+        calRandomRoundNumber = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
+
         //only can change current round price
         uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
-        calRoundNumber = calUpDownRound;//for debug
-
         if (_flag) {
             //set current round open price
             if (updownGameMap[calUpDownRound].openPrice == 0) {
