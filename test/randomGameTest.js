@@ -250,8 +250,6 @@ contract('', async ([owner]) => {
 
         assert.equal(res[0].toNumber(),wanToBtcOpenPrice);
 
-        let internalRound = await DefiGameInstance.calRoundNumber();
-        console.log("inside round number=" + internalRound);
 
     })
 
@@ -356,9 +354,6 @@ contract('', async ([owner]) => {
         console.log(calRoundNUmber)
 
         assert.equal(res[0].toNumber(),wanToBtcOpenPrice);
-
-        let internalRound = await DefiGameInstance.calRoundNumber();
-        console.log("inside round number=" + internalRound);
 
 
         let currentRound = await DefiGameInstance.curUpDownRound();
