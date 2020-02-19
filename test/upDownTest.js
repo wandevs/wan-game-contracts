@@ -114,17 +114,25 @@ contract('', async ([owner]) => {
     })
 
 
-    it('[90000003] Set Extra Prize from random round 0 - 3,expect scucess', async () => {
+    it('[91000003] Set Extra Prize from random round 0 - 3,expect scucess', async () => {
 
         var ret = await DefiGameInstance.inputExtraPrize(0,3,{from:owner,value:web3.toWei(9),gas:4710000});
+        console.log(ret);
+        sleep(100);
 
-        let round1Prize = await DefiGameInstance.extraPrizeMap(0);
-        assert.equal(gotWinnerNUmber,winnerNUmber);
+        let round0Prize = await DefiGameInstance.extraPrizeMap(0);
+        console.log(round0Prize)
+        assert.equal(round0Prize,web3.toWei(3));
 
-        var ret = await DefiGameInstance.setFeeRatio(feeRatio,{from:owner});
+        let round1Prize = await DefiGameInstance.extraPrizeMap(1);
+        console.log(round1Prize)
+        assert.equal(round1Prize,web3.toWei(3))
 
-        let gotFeeRatio = await DefiGameInstance.feeRatio();
-        assert.equal(gotFeeRatio,feeRatio);
+        let round2Prize = await DefiGameInstance.extraPrizeMap(2);
+        console.log(round2Prize)
+        assert.equal(round2Prize,web3.toWei(3))
+
+
     })
     ///////////////////////////////////////first round//////////////////////////////////
 
