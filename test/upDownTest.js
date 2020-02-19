@@ -9,7 +9,7 @@ let DefiGameInstanceAddress
 let starTime = 0;
 let calRoundNUmber = 0;
 
-let cycleTime = 200;
+let cycleTime = 160;
 let randomCycleTime = cycleTime*2
 let startUpDownRoundNb;
 let startRandomRoundNb;
@@ -25,7 +25,7 @@ let feeRatio = 100;//already mul 1000,10%
 
 ////////////////////////////////////////////////////////////////////////////////////////
 contract('', async ([owner]) => {
-    this.timeout(1000*60*60);
+
 
   it('[90000000] Deploy contracts', async () => {
 

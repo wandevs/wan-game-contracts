@@ -28,7 +28,6 @@ let feeRatio = 100;//already mul 1000,10%
 ////////////////////////////////////////////////////////////////////////////////////////
 contract('', async ([owner]) => {
 
-  this.timeout(1000*60*60);
   it('[90000000] Deploy contracts', async () => {
 
     owner = global.OWNER_ADDRESS;
