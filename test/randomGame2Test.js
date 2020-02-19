@@ -66,34 +66,38 @@ contract('', async ([owner]) => {
   })
 
 
-
-  it('[90000001] Set updown game Sart time,expect scucess', async () => {
-
-      let nowTime = parseInt(Date.now()/1000);
-
-      console.log("pc time=" + nowTime);
-
-      let chainTime = await DefiGameInstance.chainEndTime();
-      console.log("chain time=" + chainTime);
+    it('[90000001] Set updown game Sart time,expect scucess', async () => {
 
 
-      starTime = nowTime;
-      startUpDownRoundNb = parseInt(nowTime/cycleTime);
-
-      randomTartRN =   parseInt(nowTime/randomCycleTime);
-
-      calRoundNUmber = parseInt(nowTime/cycleTime) - startUpDownRoundNb
-
-      var ret = await DefiGameInstance.setUpDownLotteryTime(starTime,cycleTime,stopTimeInAdvance,{from:owner});
+        nowTime = parseInt(Date.now()/ 1000);
 
 
-      let gotStarTime = await DefiGameInstance.gameStartTime();
-      let gotCycleTime = await DefiGameInstance.upDownLotteryTimeCycle();
-      let gotStopSpan = await DefiGameInstance.upDownLtrstopTimeSpanInAdvance();
+        console.log("start time=" + nowTime)
 
-      assert.equal(gotStarTime,starTime);
-      assert.equal(gotCycleTime,cycleTime);
-      assert.equal(gotStopSpan,stopTimeInAdvance);
+
+        startUpDownRoundNb = parseInt(nowTime/cycleTime);
+
+        starTime = parseInt((startUpDownRoundNb + 1)*cycleTime);
+
+        calRoundNUmber = 0;
+
+        var ret = await DefiGameInstance.setLotteryTime(starTime,cycleTime,stopTimeInAdvance,randomCycleTime,{from:owner});
+
+        console.log(ret);
+
+
+        let gotStarTime = await DefiGameInstance.gameStartTime();
+        let gotCycleTime = await DefiGameInstance.upDownLotteryTimeCycle();
+        let gotStopSpan = await DefiGameInstance.upDownLtrstopTimeSpanInAdvance();
+
+        assert.equal(gotStarTime,starTime);
+        assert.equal(gotCycleTime,cycleTime);
+        assert.equal(gotStopSpan,stopTimeInAdvance);
+
+        let gotRandomCycleTime = await DefiGameInstance.randomLotteryTimeCycle();
+        assert.equal(gotRandomCycleTime,randomCycleTime);
+
+        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > starTime + 10;});
 
 
     })

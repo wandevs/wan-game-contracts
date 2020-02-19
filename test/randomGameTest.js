@@ -76,45 +76,41 @@ contract('', async ([owner]) => {
 
 */
 
-  it('[90000001] Set updown game Sart time,expect scucess', async () => {
+    it('[90000001] Set updown game Sart time,expect scucess', async () => {
 
 
-      var nowTime = parseInt(Date.now()/ 1000);
+        nowTime = parseInt(Date.now()/ 1000);
 
 
-      console.log("start time=" + nowTime)
+        console.log("start time=" + nowTime)
 
 
-      startUpDownRoundNb = parseInt(nowTime/cycleTime);
+        startUpDownRoundNb = parseInt(nowTime/cycleTime);
 
-      starTime = parseInt((startUpDownRoundNb + 1)*cycleTime);
+        starTime = parseInt((startUpDownRoundNb + 1)*cycleTime);
 
-      calRoundNUmber = 0;
+        calRoundNUmber = 0;
 
-      var ret = await DefiGameInstance.setUpDownLotteryTime(starTime,cycleTime,stopTimeInAdvance,{from:owner});
+        var ret = await DefiGameInstance.setLotteryTime(starTime,cycleTime,stopTimeInAdvance,randomCycleTime,{from:owner});
+
+        console.log(ret);
 
 
-      let gotStarTime = await DefiGameInstance.gameStartTime();
-      let gotCycleTime = await DefiGameInstance.upDownLotteryTimeCycle();
-      let gotStopSpan = await DefiGameInstance.upDownLtrstopTimeSpanInAdvance();
+        let gotStarTime = await DefiGameInstance.gameStartTime();
+        let gotCycleTime = await DefiGameInstance.upDownLotteryTimeCycle();
+        let gotStopSpan = await DefiGameInstance.upDownLtrstopTimeSpanInAdvance();
 
-      assert.equal(gotStarTime,starTime);
-      assert.equal(gotCycleTime,cycleTime);
-      assert.equal(gotStopSpan,stopTimeInAdvance);
+        assert.equal(gotStarTime,starTime);
+        assert.equal(gotCycleTime,cycleTime);
+        assert.equal(gotStopSpan,stopTimeInAdvance);
 
-      wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > starTime + 10;});
+        let gotRandomCycleTime = await DefiGameInstance.randomLotteryTimeCycle();
+        assert.equal(gotRandomCycleTime,randomCycleTime);
+
+        wait(function(){let nowTime = parseInt(Date.now()/1000); return nowTime > starTime + 10;});
+
 
     })
-
-
-    it('[90000002] Set random game time,expect scucess', async () => {
-
-        var ret = await DefiGameInstance.setRandomLotteryTime(randomCycleTime,{from:owner});
-        let gotCycleTime = await DefiGameInstance.randomLotteryTimeCycle();
-        assert.equal(gotCycleTime,randomCycleTime);
-
-    })
-
 
     it('[90000003] Set winner number,expect scucess', async () => {
 
