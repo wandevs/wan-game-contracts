@@ -301,7 +301,7 @@ contract DefiGame is Owned {
 
         randomLotteryTimeCycle = _randomLotteryTimeCycle;
 
-        updownLotteryStartRN = _startTime.div(_updownLottryTimeCycle);
+        updownLotteryStartRN = gameStartTime.div(_updownLottryTimeCycle);
         upDownLotteryTimeCycle = _updownLottryTimeCycle;
         upDownLtrstopTimeSpanInAdvance = _stopTimeSpanInAdvance;
     }
