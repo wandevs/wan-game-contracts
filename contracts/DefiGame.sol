@@ -61,7 +61,7 @@ contract DefiGame is Owned {
     uint public randomLotteryStartRN;
 
     //for debug
-    uint public calUpDonwRoundNumber;
+    uint public calUpDownRoundNumber;
     uint public calRandomRoundNumber;
 
     //random lottery time cycle
@@ -316,7 +316,7 @@ contract DefiGame is Owned {
         require(_currentPriceIndex > 0);
         require(now > gameStartTime);
 
-        calUpDonwRoundNumber = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
+        calUpDownRoundNumber = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
         calRandomRoundNumber = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
 
         //only can change current round price
