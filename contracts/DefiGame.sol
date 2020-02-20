@@ -15,29 +15,29 @@ contract DefiGame is Owned {
     }
 
     struct UpDownGameItem {
-        uint                    openPrice;
-        uint                    closePrice;
-        uint                    upAmount;
-        uint                    downAmount;
-        bool                    finished;
-        uint                    upStakersIdx;
-        uint                    downStakersIdx;
-        mapping(uint=>address)  upStakers;
-        mapping(uint=>address)  downStakers;
-        mapping(address=>uint)  upStakeOfStaker;
-        mapping(address=>uint)  downStakeOfStaker;
+        uint                    openPrice;  //the open price
+        uint                    closePrice; //the close price
+        uint                    upAmount;   //the stake amount for up
+        uint                    downAmount; //the down stake amount for down
+        bool                    finished;     //indicator for the status in current round
+        uint                    upStakersIdx;  //the index for up stakers
+        uint                    downStakersIdx; //the index for down stakers
+        mapping(uint=>address)  upStakers;      //the stakers staking up
+        mapping(uint=>address)  downStakers;    //the down stakers staking down
+        mapping(address=>uint)  upStakeOfStaker; //the up staker's stake
+        mapping(address=>uint)  downStakeOfStaker; //the down staker's stake
     }
 
     struct RandomGameItem{
-        uint                        stakeAmount;
-        uint                        startUpdownRound;
-        uint                        stopUpdownRound;
-        bool                        finished;
-        uint                        stakingTimeIdx;
-        uint                        accStakeRangeIdx;
-        mapping(uint=>uint)         stakingTime;
-        mapping(uint=>uint)         accStakeRange;
-        mapping(uint=>StakerInfo)   stakerInfoMap;
+        uint                        stakeAmount;       //the total stake amount
+        uint                        startUpdownRound;  //the start round for updown in current random round
+        uint                        stopUpdownRound;   //the stop round for updown in current random round
+        bool                        finished;          //the status
+        uint                        stakingTimeIdx;    //the time stake index
+        uint                        accStakeRangeIdx;  //the accumulate range index
+        mapping(uint=>uint)         stakingTime;       //the map for storing staking time
+        mapping(uint=>uint)         accStakeRange;     //the accumulate range array for looking up
+        mapping(uint=>StakerInfo)   stakerInfoMap;     //the staker's info
     }
 
     mapping(uint=>UpDownGameItem)  public updownGameMap;
