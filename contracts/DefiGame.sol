@@ -192,7 +192,8 @@ contract DefiGame is Owned {
        uint gotPrize = 0;
 
        if (updownGameMap[curUpDownRound].closePrice > updownGameMap[curUpDownRound].openPrice
-           && updownGameMap[curUpDownRound].downAmount > 0 //divid down stake if price up
+           && updownGameMap[curUpDownRound].downStakersIdx > 0
+           && updownGameMap[curUpDownRound].upStakersIdx > 0
            ) {
 
             for (i=0;i<updownGameMap[curUpDownRound].upStakersIdx;i++) {
@@ -206,35 +207,37 @@ contract DefiGame is Owned {
             }
 
         } else if (updownGameMap[curUpDownRound].closePrice < updownGameMap[curUpDownRound].openPrice
-                && updownGameMap[curUpDownRound].upAmount > 0 //divid up stake if price down
-             ) {
+                        && updownGameMap[curUpDownRound].upStakersIdx > 0
+                        && updownGameMap[curUpDownRound].downStakersIdx > 0
+                     ) {
 
-            for (i=0;i<updownGameMap[curUpDownRound].downStakersIdx;i++) {
-                sAddr = updownGameMap[curUpDownRound].downStakers[i];
-                stake = updownGameMap[curUpDownRound].downStakeOfStaker[sAddr];
+                    for (i=0;i<updownGameMap[curUpDownRound].downStakersIdx;i++) {
+                        sAddr = updownGameMap[curUpDownRound].downStakers[i];
+                        stake = updownGameMap[curUpDownRound].downStakeOfStaker[sAddr];
 
-                gotPrize = winnerPrize.mul(stake).div(updownGameMap[curUpDownRound].downAmount);
-                sAddr.transfer(gotPrize);
+                        gotPrize = winnerPrize.mul(stake).div(updownGameMap[curUpDownRound].downAmount);
+                        sAddr.transfer(gotPrize);
 
-                emit UpDownBingGo(sAddr,gotPrize,curUpDownRound);
-            }
+                        emit UpDownBingGo(sAddr,gotPrize,curUpDownRound);
+                    }
 
         } else {
-            //return back stake after cut fee
-            for (i=0;i<updownGameMap[curUpDownRound].upStakersIdx;i++) {
-                sAddr = updownGameMap[curUpDownRound].upStakers[i];
-                stake = updownGameMap[curUpDownRound].upStakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
-                sAddr.transfer(stake);
-                emit UpDownReturn(sAddr,stake,curUpDownRound);
-            }
+                    //return back stake after cut fee
+                    for (i=0;i<updownGameMap[curUpDownRound].upStakersIdx;i++) {
+                        sAddr = updownGameMap[curUpDownRound].upStakers[i];
+                        stake = updownGameMap[curUpDownRound].upStakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
+                        sAddr.transfer(stake);
+                        emit UpDownReturn(sAddr,stake,curUpDownRound);
+                    }
 
-            for (i=0;i<updownGameMap[curUpDownRound].downStakersIdx;i++) {
-                sAddr = updownGameMap[curUpDownRound].downStakers[i];
-                stake = updownGameMap[curUpDownRound].downStakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
-                sAddr.transfer(stake);
-                emit UpDownReturn(sAddr,stake,curUpDownRound);
-            }
+                    for (i=0;i<updownGameMap[curUpDownRound].downStakersIdx;i++) {
+                        sAddr = updownGameMap[curUpDownRound].downStakers[i];
+                        stake = updownGameMap[curUpDownRound].downStakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
+                        sAddr.transfer(stake);
+                        emit UpDownReturn(sAddr,stake,curUpDownRound);
+                    }
         }
+
 
         curUpDownRound++;
     }
