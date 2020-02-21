@@ -40,39 +40,40 @@ contract DefiGame is Owned {
         mapping(uint=>StakerInfo)   stakerInfoMap;     //the staker's info
     }
 
-    mapping(uint=>UpDownGameItem)  public updownGameMap;
-    mapping(uint=>RandomGameItem)  public randomGameMap;
+    mapping(uint=>UpDownGameItem)  public updownGameMap; //the records for all updown game
+    mapping(uint=>RandomGameItem)  public randomGameMap; //the records for all random game
 
 
-    uint public curUpDownRound;
-    uint public curRandomRound;
+    uint public curUpDownRound;   //current updown round number wait to be fanalized
+    uint public curRandomRound;   //current radom  round number wait to be fanalized
 
     /// Due to an emergency, set this to true to halt the contribution
-    bool public halted;
+    bool public halted;           //the indicator for stop game
 
-    uint public updownLotteryStartRN;
-    //updown game start time of day
-    uint public gameStartTime;
-    //updown game time cycle
-    uint public upDownLotteryTimeCycle;
-    //updown game stop time span in advance
-    uint public upDownLtrstopTimeSpanInAdvance;
+    uint public updownLotteryStartRN;  //the updown game start round number
 
-    uint public randomLotteryStartRN;
+    uint public randomLotteryStartRN;  //the random game start round number
+
+    uint public gameStartTime;                      //updown game start time
+
+    uint public upDownLotteryTimeCycle;             //updown game time cycle
+
+    uint public upDownLtrstopTimeSpanInAdvance;     //updown game stop time span in advance
+
+    uint public randomLotteryTimeCycle;         //random lottery time cycle
 
     //for debug
     uint public calUpDownRoundNumber;
     uint public calRandomRoundNumber;
 
-    //random lottery time cycle
-    uint public randomLotteryTimeCycle;
 
-    uint public feeRatio;
-    uint public winnerNum;
 
-    mapping(uint=>uint) public extraPrizeMap;//start cycle nuber=>each round prize
-    mapping(uint=>address) public winnerMap;
-    mapping(uint=>uint) public randomMap;
+    uint public feeRatio;  //fee ratio for each stake in updown game
+    uint public winnerNum; //the winner number in random game
+
+    mapping(uint=>uint) public extraPrizeMap;  //the extra prize provided by wanchain foundation
+    mapping(uint=>address) public winnerMap;   //the winner info
+    mapping(uint=>uint) public randomMap;      //the random record for each random round
     /*
      * EVENTS
      */
@@ -97,7 +98,13 @@ contract DefiGame is Owned {
     	revert();
     }
 
-    //allow others to stake for others
+     /**
+     * public function stakeIn
+     *
+     * @dev the interface for user stake in
+     * @param _up indicator stake for up or down, true up,false down
+     *
+     */
     function stakeIn(bool _up)
         public
         notHalted
@@ -152,6 +159,12 @@ contract DefiGame is Owned {
     }
 
 
+    /**
+     * public upDownLotteryFanalize
+     *
+     * @dev clear updown game and return winning prize after cut fee for random game
+     *
+     */
 
     function upDownLotteryFanalize()
         onlyOwner
@@ -224,6 +237,13 @@ contract DefiGame is Owned {
         curUpDownRound++;
     }
 
+    /**
+     * public randomLotteryFanalize
+     *
+     * @dev select staker from stakers in updown round by random
+     * and give  winner prize from stakers fee and extra prize from foundation
+     *
+     */
     function randomLotteryFanalize()
         onlyOwner
         notHalted
@@ -273,9 +293,19 @@ contract DefiGame is Owned {
 
     }
 
-   //need _randomLotteryTimeCycle mod _updownLtryTimeCycle to be 0
-   //startTime would be multiple of _randomLotteryTimeCycle
-   //if not, the game start time will be the (N+1)*_randomLotteryTimeCycle
+     /**
+     * public function setLotteryTime
+     *
+     * @dev set game related time
+     *      need _randomLotteryTimeCycle mod _updownLtryTimeCycle to be 0
+     *      startTime would be multiple of _randomLotteryTimeCycle
+     *      if not, the game start time will be the (N+1)*_randomLotteryTimeCycle
+     * @param _startTime  the wanted game start time,but game maybe not be this one,need to be caculate
+     * @param _updownLottryTimeCycle  the cycle time for updown game
+     * @param _stopTimeSpanInAdvance  the stop time avanced before the real end time for this round
+     * @param _randomLotteryTimeCycle the random cycle time for random game
+     *
+     */
     function setLotteryTime(uint _startTime,uint _updownLottryTimeCycle, uint _stopTimeSpanInAdvance,uint _randomLotteryTimeCycle)
         onlyOwner
         notHalted
@@ -306,7 +336,15 @@ contract DefiGame is Owned {
         upDownLtrstopTimeSpanInAdvance = _stopTimeSpanInAdvance;
     }
 
-
+    /**
+     * public function
+     *
+     * @dev change wallet address for recieving wan
+     * @param _currentPriceIndex the expected price index for open or close
+     * @param _cycleumber the cycle number,it will be discard for open price but will be used for close price
+     * @param _flag  the indicator for open or close,true open price,false close price
+     *
+     */
     function setPriceIndex(uint _currentPriceIndex, uint _cycleumber,bool _flag)
         onlyOwner
         notHalted
@@ -344,6 +382,14 @@ contract DefiGame is Owned {
         }
     }
 
+    /**
+     * public function inputExtraPrize
+     *
+     * @dev input ExtraPrize for random game
+     * @param _startCycleNumber the start random game cycle number for extra prize
+     * @param _cycleNumber the total random game number for extra prize
+     *
+     */
     function inputExtraPrize(uint _startCycleNumber, uint _cycleNumber)
         payable
         onlyOwner
@@ -359,6 +405,13 @@ contract DefiGame is Owned {
         }
     }
 
+    /**
+     * public function setRandomWinnerNumber
+     *
+     * @dev set winner number for random game
+     * @param _winnerNum winner number
+     *
+     */
     function setRandomWinnerNumber(uint _winnerNum)
         onlyOwner
         notHalted
@@ -368,7 +421,13 @@ contract DefiGame is Owned {
         winnerNum = _winnerNum;
     }
 
-     //feeRatio is mul 1000
+    /**
+     * public function setFeeRatio
+     *
+     * @dev set fee ratio for each stake
+     * @param _feeRatio fee ratio
+     *
+     */
      function setFeeRatio(uint _feeRatio)
         onlyOwner
         notHalted
@@ -378,6 +437,14 @@ contract DefiGame is Owned {
          feeRatio = _feeRatio;
      }
 
+    /**
+     * public function setFanalizeRoundNumber
+     *
+     * @dev set finalize round number for updown game or random game
+     * @param _curUpDownRound round number for updown game
+     * @param _curRandomRound round number for random game
+     *
+     */
     function setFanalizeRoundNumber(uint _curUpDownRound, uint _curRandomRound)
         onlyOwner
         notHalted
@@ -393,7 +460,13 @@ contract DefiGame is Owned {
 
     }
 
-   //because function gas problem,so take it as isolate function
+    /**
+     * public function genRandom
+     *
+     * @dev get random for current round random game because function gas problem,so take it as isolate function
+     * @param _randomRound random game round
+     *
+     */
   function genRandom(uint _randomRound)
         onlyOwner
         notHalted
@@ -414,7 +487,14 @@ contract DefiGame is Owned {
         randomMap[curRandomRound] = uint(result);
     }
 
-   //in case of big mistake,return back staker' stake
+
+    /**
+     * public function upDownLotteryGiveBack
+     *
+     * @dev give back stake to staker in the specificed updown roun in case of big mistake
+     * @param _updownRound round number for updown game
+     *
+     */
     function upDownLotteryGiveBack(uint _updownRound)
         onlyOwner
         public
@@ -447,6 +527,12 @@ contract DefiGame is Owned {
     }
 
 
+    /**
+     * public function chainEndTime
+     *
+     * @dev get the chain time
+     *
+     */
 
     function chainEndTime() public view returns(uint) {
        return now;
