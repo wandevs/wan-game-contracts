@@ -83,6 +83,8 @@ contract DefiGame is Owned {
 
     event UpDownBingGo(address indexed staker,uint indexed prizeAmount,uint indexed round);
 
+    event UpDownGiveBack(address indexed staker,uint indexed prizeAmount,uint indexed round);
+
     event UpDownReturn(address indexed staker,uint indexed prizeAmount,uint indexed round);
 
     /*
@@ -223,14 +225,14 @@ contract DefiGame is Owned {
                 sAddr = updownGameMap[curUpDownRound].upStakers[i];
                 stake = updownGameMap[curUpDownRound].upStakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
                 sAddr.transfer(stake);
-                emit UpDownBingGo(sAddr,stake,curUpDownRound);
+                emit UpDownReturn(sAddr,stake,curUpDownRound);
             }
 
             for (i=0;i<updownGameMap[curUpDownRound].downStakersIdx;i++) {
                 sAddr = updownGameMap[curUpDownRound].downStakers[i];
                 stake = updownGameMap[curUpDownRound].downStakeOfStaker[sAddr].mul(prizePercent).div(DIVISOR);
                 sAddr.transfer(stake);
-                emit UpDownBingGo(sAddr,stake,curUpDownRound);
+                emit UpDownReturn(sAddr,stake,curUpDownRound);
             }
         }
 
@@ -510,7 +512,7 @@ contract DefiGame is Owned {
             sAddr = updownGameMap[_updownRound].upStakers[i];
             stake = updownGameMap[_updownRound].upStakeOfStaker[sAddr];
             sAddr.transfer(stake);
-            emit UpDownReturn(sAddr,stake,_updownRound);
+            emit UpDownGiveBack(sAddr,stake,_updownRound);
         }
 
 
@@ -518,7 +520,7 @@ contract DefiGame is Owned {
             sAddr = updownGameMap[_updownRound].downStakers[i];
             stake = updownGameMap[_updownRound].downStakeOfStaker[sAddr];
             sAddr.transfer(stake);
-            emit UpDownReturn(sAddr,stake,_updownRound);
+            emit UpDownGiveBack(sAddr,stake,_updownRound);
         }
 
        updownGameMap[_updownRound].upAmount = 0;
