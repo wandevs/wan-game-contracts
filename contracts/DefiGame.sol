@@ -531,6 +531,24 @@ contract DefiGame is Owned {
 
     }
 
+    /**
+     * public function
+     * @dev Emergency situation that requires contribution period to stop,Contributing not possible anymore.
+     */
+
+    function halt() public onlyOwner{
+        halted = true;
+    }
+
+    /**
+     * public function
+     * @dev Emergency situation resolved, Contributing becomes possible again withing the outlined restrictions.
+     */
+
+    function unHalt() public onlyOwner{
+        halted = false;
+    }
+
 
     /**
      * public function chainEndTime
