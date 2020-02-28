@@ -64,10 +64,6 @@ contract('', async ([owner]) => {
 
       nowTime = parseInt(Date.now()/ 1000);
 
-
-
-
-
       startRandomRoundNb = parseInt(nowTime/randomCycleTime);
 
       starTime = parseInt((startRandomRoundNb + 1)*randomCycleTime);

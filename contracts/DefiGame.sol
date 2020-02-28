@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "../SafeMath.sol";
-import "../Owned.sol";
+import "./SafeMath.sol";
+import "./Owned.sol";
 
 contract DefiGame is Owned {
 
