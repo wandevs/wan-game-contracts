@@ -70,15 +70,15 @@ contract('', async ([owner]) => {
   it('[90000001] Set updown game Sart time,expect scucess', async () => {
 
 
-        nowTime = parseInt(Date.now()/ 1000);
+       nowTime = parseInt(Date.now()/ 1000);
 
-        startRandomRoundNb = parseInt(nowTime/randomCycleTime);
+      //startRandomRoundNb = parseInt(nowTime/randomCycleTime);
 
-        starTime = parseInt((startRandomRoundNb + 1)*randomCycleTime);
+       starTime = nowTime;//parseInt((startRandomRoundNb + 1)*randomCycleTime);
 
-        startUpDownRoundNb = parseInt(starTime/cycleTime);
+      // startUpDownRoundNb = parseInt(starTime/cycleTime);
 
-        calRoundNUmber = 0;
+       calRoundNUmber = 0;
 
         var ret = await DefiGameInstance.setLotteryTime(starTime,cycleTime,stopTimeInAdvance,randomCycleTime,{from:owner});
 
@@ -313,7 +313,7 @@ contract('', async ([owner]) => {
 
         sleep(50);
 
-        let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT3);
+        let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT2);
         console.log("afterbalance=" +  web3.fromWei(afterAccountBalance1))
 
         assert.equal(afterAccountBalance1-preAccountBalance1>0,true)
