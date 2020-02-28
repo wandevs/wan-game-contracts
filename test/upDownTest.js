@@ -11,8 +11,9 @@ let calRoundNUmber = 0;
 
 let cycleTime = 160;
 let randomCycleTime = cycleTime*2
-let startUpDownRoundNb;
-let startRandomRoundNb;
+
+//let startUpDownRoundNb;
+//let startRandomRoundNb;
 
 let stake = web3.toWei(1);
 let stopTimeInAdvance = 1;
@@ -64,11 +65,11 @@ contract('', async ([owner]) => {
 
       nowTime = parseInt(Date.now()/ 1000);
 
-      startRandomRoundNb = parseInt(nowTime/randomCycleTime);
+      //startRandomRoundNb = parseInt(nowTime/randomCycleTime);
 
-      starTime = parseInt((startRandomRoundNb + 1)*randomCycleTime);
+      starTime = nowTime;//parseInt((startRandomRoundNb + 1)*randomCycleTime);
 
-      startUpDownRoundNb = parseInt(starTime/cycleTime);
+     // startUpDownRoundNb = parseInt(starTime/cycleTime);
 
       calRoundNUmber = 0;
 
@@ -318,9 +319,9 @@ contract('', async ([owner]) => {
         var ret = await DefiGameInstance.upDownLotteryFanalize({from:owner,gas:4710000});
         console.log(ret.logs[0].args)
 
-        sleep(10);
+        sleep(1000);
 
-        let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT3);
+        let afterAccountBalance1 = await web3.eth.getBalance(global.ACCOUNT2);
         console.log("afterbalance=" +  web3.fromWei(afterAccountBalance1))
 
         assert.equal(afterAccountBalance1-preAccountBalance1>0,true)
