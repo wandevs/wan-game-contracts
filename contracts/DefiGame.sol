@@ -1,12 +1,13 @@
 pragma solidity ^0.4.24;
 
-import "./SafeMath.sol";
-import "./Owned.sol";
+import "../SafeMath.sol";
+import "../Owned.sol";
 
 contract DefiGame is Owned {
 
     using SafeMath for uint;
     uint public constant DIVISOR = 1000;
+    uint public constant DAY = 60*60*24;
 
     struct StakerInfo {
         address     staker;
@@ -50,10 +51,6 @@ contract DefiGame is Owned {
     /// Due to an emergency, set this to true to halt the contribution
     bool public halted;           //the indicator for stop game
 
-    uint public updownLotteryStartRN;  //the updown game start round number
-
-    uint public randomLotteryStartRN;  //the random game start round number
-
     uint public gameStartTime;                      //updown game start time
 
     uint public upDownLotteryTimeCycle;             //updown game time cycle
@@ -61,6 +58,7 @@ contract DefiGame is Owned {
     uint public upDownLtrstopTimeSpanInAdvance;     //updown game stop time span in advance
 
     uint public randomLotteryTimeCycle;         //random lottery time cycle
+    uint public randomLotteryTileMul;
 
     //for debug
     uint public calUpDownRoundNumber;
@@ -119,8 +117,8 @@ contract DefiGame is Owned {
        require(feeRatio > 0);
 
 
-       uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
-       uint calRandomRound = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
+       uint calUpDownRound = now.sub(gameStartTime).div(upDownLotteryTimeCycle);
+       uint calRandomRound = now.sub(gameStartTime).div(randomLotteryTimeCycle);
 
        //each round start time
        uint startTime = gameStartTime.add(upDownLotteryTimeCycle.mul(calUpDownRound));
@@ -236,6 +234,8 @@ contract DefiGame is Owned {
                         sAddr.transfer(stake);
                         emit UpDownReturn(sAddr,stake,curUpDownRound);
                     }
+
+
         }
 
 
@@ -317,7 +317,7 @@ contract DefiGame is Owned {
         public
     {
         //only set one time
-        require (updownLotteryStartRN == 0 );
+        require (gameStartTime == 0 );
 
         require(_startTime > 0);
         require(_updownLottryTimeCycle > 0);
@@ -326,18 +326,11 @@ contract DefiGame is Owned {
         require(_randomLotteryTimeCycle>_updownLottryTimeCycle);
         require(_randomLotteryTimeCycle.mod(_updownLottryTimeCycle) == 0);
 
-        if ( _startTime.mod(_randomLotteryTimeCycle) == 0 ) {
-           randomLotteryStartRN = _startTime.div(_randomLotteryTimeCycle);
-           gameStartTime =  _startTime;
-        } else {
-           randomLotteryStartRN = _startTime.div(_randomLotteryTimeCycle).add(1);
-           gameStartTime = _randomLotteryTimeCycle.mul(randomLotteryStartRN);
-        }
 
+        gameStartTime =  _startTime;
         randomLotteryTimeCycle = _randomLotteryTimeCycle;
-
-        updownLotteryStartRN = gameStartTime.div(_updownLottryTimeCycle);
         upDownLotteryTimeCycle = _updownLottryTimeCycle;
+
         upDownLtrstopTimeSpanInAdvance = _stopTimeSpanInAdvance;
     }
 
@@ -359,11 +352,12 @@ contract DefiGame is Owned {
         require(_currentPriceIndex > 0);
         require(now > gameStartTime);
 
-        calUpDownRoundNumber = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
-        calRandomRoundNumber = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
+        calUpDownRoundNumber = now.sub(gameStartTime).div(upDownLotteryTimeCycle);
+        calRandomRoundNumber = now.sub(gameStartTime).div(randomLotteryTimeCycle);
 
         //only can change current round price
-        uint calUpDownRound = now.div(upDownLotteryTimeCycle).sub(updownLotteryStartRN);
+        uint calUpDownRound = now.sub(gameStartTime).div(upDownLotteryTimeCycle);
+
         if (_flag) {
             //set current round open price
             if (updownGameMap[calUpDownRound].openPrice == 0) {
@@ -371,7 +365,7 @@ contract DefiGame is Owned {
             }
            updownGameMap[calUpDownRound].openPrice = _currentPriceIndex;
 
-           uint calRandomRound = now.div(randomLotteryTimeCycle).sub(randomLotteryStartRN);
+           uint calRandomRound = now.sub(gameStartTime).div(randomLotteryTimeCycle);
            if (randomGameMap[calRandomRound].stakeAmount==0) {
                randomGameMap[calRandomRound] = RandomGameItem(0,calUpDownRound,0,false,0,0);
                if (calRandomRound > 0 && randomGameMap[calRandomRound.sub(1)].stopUpdownRound == 0) {
@@ -548,7 +542,6 @@ contract DefiGame is Owned {
     function unHalt() public onlyOwner{
         halted = false;
     }
-
 
     /**
      * public function chainEndTime
