@@ -7,7 +7,7 @@ contract DefiGame is Owned {
 
     using SafeMath for uint;
     uint public constant DIVISOR = 1000;
-    uint public constant DAY = 60*60*24;
+
 
     struct StakerInfo {
         address     staker;
