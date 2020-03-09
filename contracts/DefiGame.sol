@@ -8,7 +8,6 @@ contract DefiGame is Owned {
     using SafeMath for uint;
     uint public constant DIVISOR = 1000;
 
-
     struct StakerInfo {
         address     staker;
         uint        stakeAmount;			//the storeman group deposit
@@ -64,7 +63,7 @@ contract DefiGame is Owned {
     uint public calUpDownRoundNumber;
     uint public calRandomRoundNumber;
 
-
+    address public operator;
 
     uint public feeRatio;  //fee ratio for each stake in updown game
     uint public winnerNum; //the winner number in random game
@@ -94,9 +93,19 @@ contract DefiGame is Owned {
         _;
     }
 
+    modifier onlyOperator() {
+        require(operator != 0x0 && msg.sender == operator);
+        _;
+    }
+
+
+
+
     function () public payable {
     	revert();
     }
+
+
 
      /**
      * public function stakeIn
@@ -167,7 +176,7 @@ contract DefiGame is Owned {
      */
 
     function upDownLotteryFanalize()
-        onlyOwner
+        onlyOperator
         notHalted
         public
     {
@@ -250,7 +259,7 @@ contract DefiGame is Owned {
      *
      */
     function randomLotteryFanalize()
-        onlyOwner
+        onlyOperator
         notHalted
         public
     {
@@ -344,7 +353,7 @@ contract DefiGame is Owned {
      *
      */
     function setPriceIndex(uint _currentPriceIndex, uint _cycleumber,bool _flag)
-        onlyOwner
+        onlyOperator
         notHalted
         public
     {
@@ -434,6 +443,22 @@ contract DefiGame is Owned {
      {
          require(_feeRatio > 0);
          feeRatio = _feeRatio;
+     }
+
+
+    /**
+     * public function operator
+     *
+     * @dev set game operator
+     * @param _operator the operator for the game
+     *
+     */
+     function setOperator(address _operator)
+        onlyOwner
+        public
+     {
+         require(_operator != 0x0);
+         operator = _operator;
      }
 
     /**

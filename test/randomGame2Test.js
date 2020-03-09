@@ -122,6 +122,11 @@ contract('', async ([owner]) => {
 
         let gotFeeRatio = await DefiGameInstance.feeRatio();
         assert.equal(gotFeeRatio,feeRatio);
+
+        var ret = await DefiGameInstance.setOperator(owner,{from:owner});
+        sleep(100)
+        let operator =  await DefiGameInstance.operator();
+        assert.equal(operator,owner);
     })
 
     ///////////////////////////////////////first round//////////////////////////////////
