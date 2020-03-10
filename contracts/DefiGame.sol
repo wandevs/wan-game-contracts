@@ -492,7 +492,7 @@ contract DefiGame is Owned {
      *
      */
   function genRandom(uint _randomRound)
-        onlyOwner
+        onlyOperator
         notHalted
         public
     {
