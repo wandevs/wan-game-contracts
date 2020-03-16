@@ -400,7 +400,6 @@ contract DefiGame is Owned {
      */
     function inputExtraPrize(uint _startCycleNumber, uint _cycleNumber)
         payable
-        onlyOwner
         notHalted
         public
     {
