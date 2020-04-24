@@ -505,15 +505,17 @@ contract DefiGame is Owned {
         uint timeNow = now;
         timeNow = gameStartTime.add(upDownLotteryTimeCycle.mul(_randomRound));
 
+        bytes32 functionSelector = keccak256( "getRandomNumberByTimestamp(uint256)" );
+
         (uint256 result, bool success) = callWith32BytesReturnsUint256(
-                                                PRECOMPILE_CONTRACT_ADDR,
-                                                RANDOM_BY_EPID_SELECTOR,
-                                                bytes32(timeNow)
-                                          );
+            0x262,
+            functionSelector,
+            bytes32(timeNow)
+        );
 
         randomMap[curRandomRound] = uint(result);
         if (!success) {
-           emit FailGetRandom(curRandomRound);
+          emit FailGetRandom(curRandomRound);
         }
 
     }
@@ -620,46 +622,24 @@ contract DefiGame is Owned {
     }
 
 
-////////////////////////////////////////////////////////////////////////////
-    bytes32 constant RANDOM_BY_EPID_SELECTOR = 0x7f07b9ab00000000000000000000000000000000000000000000000000000000;
-    bytes32 constant RANDOM_BY_BLKTIME_SELECTOR = 0xdf39683800000000000000000000000000000000000000000000000000000000;
-    bytes32 constant GET_EPOCHID_SELECTOR = 0x5303548b00000000000000000000000000000000000000000000000000000000;
-    address constant PRECOMPILE_CONTRACT_ADDR = 0x262;
-
-   function callWith32BytesReturnsUint256(
+    function callWith32BytesReturnsUint256(
         address to,
         bytes32 functionSelector,
         bytes32 param1
-        )
-
-        private
-
-        returns (uint256 result, bool success) {
-
+    ) private view returns (uint256 result, bool success) {
         assembly {
             let freePtr := mload(0x40)
-            let tmp1 := mload(freePtr)
-            let tmp2 := mload(add(freePtr, 4))
 
             mstore(freePtr, functionSelector)
             mstore(add(freePtr, 4), param1)
 
             // call ERC20 Token contract transfer function
-            success := staticcall(
-                gas,           // Forward all gas
-                to,            // Interest Model Address
-                freePtr,       // Pointer to start of calldata
-                36,            // Length of calldata
-                freePtr,       // Overwrite calldata with output
-                32             // Expecting uint256 output
-            )
+            success := staticcall(gas, to, freePtr, 36, freePtr, 32)
 
             result := mload(freePtr)
-
-            mstore(freePtr, tmp1)
-            mstore(add(freePtr, 4), tmp2)
         }
     }
+
 
 /////////////////////////////////////mock up for test ///////////////////////
 
