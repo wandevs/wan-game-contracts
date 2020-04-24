@@ -125,7 +125,7 @@ contract DefiGame is Owned {
        require(randomLotteryTimeCycle > 0);
        require (winnerNum > 0);
        require(feeRatio > 0);
-
+       require(tx.origin == msg.sender);
 
        uint calUpDownRound = now.sub(gameStartTime).div(upDownLotteryTimeCycle);
        uint calRandomRound = now.sub(gameStartTime).div(randomLotteryTimeCycle);
